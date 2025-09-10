@@ -13,9 +13,16 @@ import {
   Filter,
   Download,
   Heart,
-  Save,
-  Activity
+  Save
 } from 'lucide-react';
+import { NSBM_DESIGN_SYSTEM, getBrandColor } from '../../styles/nsbm-design-system';
+
+// NSBM Brand Colors from Design System
+const { colors } = NSBM_DESIGN_SYSTEM;
+const nsbmGreen = colors.brandPrimary;
+
+// Helper functions for colors with opacity
+const getNsbmGreen = (opacity = 1) => getBrandColor('brandPrimary', opacity);
 
 const ClubOperations = () => {
   const [activeTab, setActiveTab] = useState('matches');
@@ -30,7 +37,6 @@ const ClubOperations = () => {
   const [editingTraining, setEditingTraining] = useState(null);
   const [attendanceFilter, setAttendanceFilter] = useState('all');
   const [fitnessData, setFitnessData] = useState({});
-  const [editingPlayer, setEditingPlayer] = useState(null);
 
   // Fitness management functions
   const handleFitnessInput = (playerId, field, value) => {
@@ -45,34 +51,21 @@ const ClubOperations = () => {
 
   const saveFitnessData = (playerId) => {
     console.log('Saving fitness data for player:', playerId, fitnessData[playerId]);
-    setEditingPlayer(null);
-  };
-
-  const openFitnessModal = (playerId) => {
-    setEditingPlayer(playerId);
   };
 
   // Sample players data for fitness management
   const samplePlayers = [
-    { id: 1, name: 'Maneendra Jayathilaka', role: 'Batsman', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', email: 'maneendra@nsbm.ac.lk', phone: '+94 71 000 0001' },
-    { id: 2, name: 'Monil Jason', role: 'All-rounder', photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', email: 'monil@nsbm.ac.lk', phone: '+94 71 000 0002' },
-    { id: 3, name: 'Dilhara Polgampola', role: 'Bowler', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', email: 'dilhara@nsbm.ac.lk', phone: '+94 71 000 0003' },
-    { id: 4, name: 'Lahiru Abhesinghe', role: 'Batsman', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face', email: 'lahiru@nsbm.ac.lk', phone: '+94 71 000 0004' },
-    { id: 5, name: 'Asitha Wanninayaka', role: 'Bowler', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face', email: 'asitha@nsbm.ac.lk', phone: '+94 71 000 0005' },
-    { id: 6, name: 'Suviru Sathnidu', role: 'All-rounder', photo: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=150&h=150&fit=crop&crop=face', email: 'suviru@nsbm.ac.lk', phone: '+94 71 000 0006' },
-    { id: 7, name: 'Kavisha Weerasinghe', role: 'Wicket-keeper', photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face', email: 'kavisha@nsbm.ac.lk', phone: '+94 71 000 0007' },
-    { id: 8, name: 'Chamod Hasalanka', role: 'Batsman', photo: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face', email: 'chamod@nsbm.ac.lk', phone: '+94 71 000 0008' },
-    { id: 9, name: 'Dulaj Bandara', role: 'Bowler', photo: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face', email: 'dulaj@nsbm.ac.lk', phone: '+94 71 000 0009' }
+    { id: 1, name: 'Maniya Silva', role: 'Batsman', photo: '/images/gallery/players/maniya.jpg', email: 'maniya@nsbm.ac.lk', phone: '+94 77 123 4567' },
+    { id: 2, name: 'Dulaj Rajapaksa', role: 'All-rounder', photo: '/images/gallery/players/dulaj.jpg', email: 'dulaj@nsbm.ac.lk', phone: '+94 77 234 5678' },
+    { id: 3, name: 'Suviru Perera', role: 'Bowler', photo: '/images/gallery/players/suviru.jpg', email: 'suviru@nsbm.ac.lk', phone: '+94 77 345 6789' },
+    { id: 4, name: 'Lahiru Fernando', role: 'Batsman', photo: '/images/gallery/players/lahiru.jpeg', email: 'lahiru@nsbm.ac.lk', phone: '+94 77 456 7890' },
+    { id: 5, name: 'Asitha', role: 'Bowler', photo: '/images/gallery/players/asitha.jpeg', email: 'asitha@nsbm.ac.lk', phone: '+94 77 567 8901' },
+    { id: 6, name: 'Suviru Perera', role: 'All-rounder', photo: '/images/gallery/players/suviru.jpg', email: 'suviru@nsbm.ac.lk', phone: '+94 77 678 9012' },
+    { id: 7, name: 'Maniya Silva', role: 'Wicket-keeper', photo: '/images/gallery/players/maniya.jpg', email: 'maniya@nsbm.ac.lk', phone: '+94 77 789 0123' },
+    { id: 8, name: 'Lahiru Fernando', role: 'Batsman', photo: '/images/gallery/players/lahiru.jpeg', email: 'lahiru@nsbm.ac.lk', phone: '+94 77 890 1234' },
+    { id: 9, name: 'Dulaj Rajapaksa', role: 'Bowler', photo: '/images/gallery/players/dulaj.jpg', email: 'dulaj@nsbm.ac.lk', phone: '+94 77 901 2345' }
   ];
 
-  // Sample fitness data
-  const initialFitnessData = {
-    1: { sprint20m: 3.2, beepTest: 12.5, pushUps: 45, sitUps: 60, status: 'Healthy', lastUpdated: '2024-01-15' },
-    2: { sprint20m: 3.4, beepTest: 11.8, pushUps: 38, sitUps: 55, status: 'Healthy', lastUpdated: '2024-01-14' },
-    3: { sprint20m: 3.1, beepTest: 12.1, pushUps: 42, sitUps: 58, status: 'Recovering', lastUpdated: '2024-01-13' },
-    4: { sprint20m: 3.3, beepTest: 12.0, pushUps: 40, sitUps: 52, status: 'Healthy', lastUpdated: '2024-01-12' },
-    5: { sprint20m: 3.5, beepTest: 11.5, pushUps: 35, sitUps: 48, status: 'Healthy', lastUpdated: '2024-01-11' }
-  };
 
   const [matchForm, setMatchForm] = useState({
     opponent: '',
@@ -80,8 +73,7 @@ const ClubOperations = () => {
     time: '',
     venue: '',
     type: 'T20',
-    notes: '',
-    image: ''
+    notes: ''
   });
 
   const [eventForm, setEventForm] = useState({
@@ -90,8 +82,8 @@ const ClubOperations = () => {
     time: '',
     venue: '',
     description: '',
-    image: '',
-    featured: false
+    featured: false,
+    image: null
   });
 
   const [trainingForm, setTrainingForm] = useState({
@@ -103,33 +95,39 @@ const ClubOperations = () => {
     coach: '',
     type: 'Batting',
     description: '',
-    maxPlayers: 20,
-    image: ''
+    maxPlayers: 20
   });
 
   // Sample data
   useEffect(() => {
+    // Sample fitness data
+    const initialFitnessData = {
+      1: { sprint20m: 3.2, beepTest: 12.5, pushUps: 45, sitUps: 60, status: 'Healthy', lastUpdated: '2024-01-15' },
+      2: { sprint20m: 3.4, beepTest: 11.8, pushUps: 38, sitUps: 55, status: 'Healthy', lastUpdated: '2024-01-14' },
+      3: { sprint20m: 3.1, beepTest: 12.1, pushUps: 42, sitUps: 58, status: 'Recovering', lastUpdated: '2024-01-13' },
+      4: { sprint20m: 3.3, beepTest: 12.0, pushUps: 40, sitUps: 52, status: 'Healthy', lastUpdated: '2024-01-12' },
+      5: { sprint20m: 3.5, beepTest: 11.5, pushUps: 35, sitUps: 48, status: 'Healthy', lastUpdated: '2024-01-11' }
+    };
+
     const sampleMatches = [
       {
         id: 1,
-        opponent: 'City Cricket Club',
+        opponent: 'APIIT',
         date: '2024-01-15',
         time: '14:00',
         venue: 'Central Ground',
         type: 'T20',
         notes: 'Important league match',
-        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop',
         status: 'upcoming'
       },
       {
         id: 2,
-        opponent: 'Riverside CC',
+        opponent: 'KDU',
         date: '2024-01-08',
         time: '10:00',
         venue: 'Riverside Park',
-        type: 'ODI',
+        type: 'T10',
         notes: 'Friendly match',
-        image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop',
         status: 'completed',
         result: 'Won',
         score: '245/8 (50) vs 198/10 (45.2)'
@@ -144,8 +142,8 @@ const ClubOperations = () => {
         time: '19:00',
         venue: 'Grand Hotel Ballroom',
         description: 'Celebrating the best performances of the season',
-        image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
-        featured: true
+        featured: true,
+        image: null
       },
       {
         id: 2,
@@ -154,8 +152,8 @@ const ClubOperations = () => {
         time: '09:00',
         venue: 'Club Ground',
         description: 'Special training session for young players',
-        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop',
-        featured: false
+        featured: false,
+        image: null
       }
     ];
 
@@ -172,7 +170,6 @@ const ClubOperations = () => {
         type: 'Batting',
         description: 'Focus on technique and power hitting',
         maxPlayers: 15,
-        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop',
         status: 'scheduled',
         registeredPlayers: 12,
         attendance: [
@@ -194,7 +191,6 @@ const ClubOperations = () => {
         type: 'Bowling',
         description: 'Fast bowling techniques and variations',
         maxPlayers: 10,
-        image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop',
         status: 'scheduled',
         registeredPlayers: 8,
         attendance: [
@@ -216,7 +212,6 @@ const ClubOperations = () => {
         type: 'Fielding',
         description: 'Ground fielding and catching practice',
         maxPlayers: 20,
-        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop',
         status: 'completed',
         registeredPlayers: 18,
         attendance: [
@@ -257,8 +252,7 @@ const ClubOperations = () => {
       time: '',
       venue: '',
       type: 'T20',
-      notes: '',
-      image: ''
+      notes: ''
     });
   };
 
@@ -283,8 +277,8 @@ const ClubOperations = () => {
       time: '',
       venue: '',
       description: '',
-      image: '',
-      featured: false
+      featured: false,
+      image: null
     });
   };
 
@@ -321,8 +315,7 @@ const ClubOperations = () => {
       coach: '',
       type: 'Batting',
       description: '',
-      maxPlayers: 20,
-      image: ''
+      maxPlayers: 20
     });
   };
 
@@ -406,14 +399,14 @@ const ClubOperations = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Club Operations</h1>
-          <p className="text-gray-600">Manage matches, events, and training sessions</p>
+          <h1 className="text-3xl font-bold" style={{ color: nsbmGreen }}>Club Operations</h1>
+          <p className="text-white/70 mt-1">Manage matches, events, and training sessions</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className="bg-white rounded-xl shadow-lg border-0 overflow-hidden" style={{ backgroundColor: colors.backgroundPrimary }}>
+        <div className="border-b" style={{ borderColor: getNsbmGreen(0.2) }}>
           <nav className="-mb-px flex space-x-8 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -421,13 +414,17 @@ const ClubOperations = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                  className={`py-4 px-1 border-b-2 font-semibold text-sm flex items-center transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? `border-2 text-white px-3 py-2 rounded-lg`
+                      : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
                   }`}
+                  style={activeTab === tab.id ? { 
+                    backgroundColor: nsbmGreen, 
+                    borderColor: nsbmGreen 
+                  } : {}}
                 >
-                  <Icon className="w-4 h-4 mr-2" />
+                  <Icon className="w-4 h-4 mr-2" style={{ color: activeTab === tab.id ? 'white' : '#6B7280' }} />
                   {tab.name}
                 </button>
               );
@@ -440,10 +437,14 @@ const ClubOperations = () => {
           {activeTab === 'matches' && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Match Schedule</h3>
+                <h3 className="text-xl font-bold flex items-center" style={{ color: nsbmGreen }}>
+                  <Trophy className="w-6 h-6 mr-3 p-1 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }} />
+                  Match Schedule
+                </h3>
                 <button
                   onClick={() => setShowMatchModal(true)}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                  className="inline-flex items-center px-6 py-3 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-200"
+                  style={{ backgroundColor: nsbmGreen }}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Schedule Match
@@ -452,75 +453,102 @@ const ClubOperations = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {matches.map((match) => (
-                  <div key={match.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="h-32 bg-gray-200 relative">
-                      {match.image && (
-                        <img
-                          src={match.image}
-                          alt={match.opponent}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                  <div key={match.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-200" style={{ backgroundColor: colors.backgroundPrimary }}>
+                    <div className="h-32 relative flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${getNsbmGreen(0.1)}, ${getNsbmGreen(0.05)})` }}>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-800">vs {match.opponent}</div>
+                        <div className="text-sm text-gray-600">{match.type} Match</div>
+                        <div className="text-xs text-gray-500">{match.venue}</div>
+                      </div>
                       <div className="absolute top-2 right-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           match.status === 'upcoming' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-green-100 text-green-800'
-                        }`}>
+                            ? 'text-white' 
+                            : 'text-white'
+                        }`} style={{ 
+                          backgroundColor: match.status === 'upcoming' ? getNsbmGreen(0.8) : nsbmGreen 
+                        }}>
                           {match.status}
                         </span>
                       </div>
                     </div>
                     <div className="p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">vs {match.opponent}</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold text-gray-900">Match Details</h4>
+                          <span className="text-xs font-semibold text-white px-3 py-1 rounded-lg" style={{ backgroundColor: nsbmGreen }}>
+                            {match.type}
+                          </span>
+                        </div>
                       <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          {new Date(match.date).toLocaleDateString()}
+                          <Calendar className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{new Date(match.date).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2" />
-                          {match.time}
+                            <Clock className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                            <span className="font-medium">{match.time}</span>
                         </div>
                         <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {match.venue}
-                        </div>
-                        <div className="flex items-center">
-                          <Trophy className="w-4 h-4 mr-2" />
-                          {match.type}
+                            <MapPin className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                            <span className="font-medium">{match.venue}</span>
                         </div>
                       </div>
                       {match.notes && (
-                        <p className="text-sm text-gray-500 mt-2">{match.notes}</p>
+                          <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.05) }}>
+                            <p className="text-xs font-semibold mb-1" style={{ color: nsbmGreen }}>Notes:</p>
+                            <p className="text-sm text-gray-700">{match.notes}</p>
+                          </div>
                       )}
                       {match.result && (
-                        <div className="mt-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }}>
+                            <div className="flex items-center justify-between">
+                              <span className={`px-3 py-1 rounded-lg text-xs font-semibold ${
                             match.result === 'Won' 
-                              ? 'bg-green-100 text-green-800' 
+                                  ? 'text-white' 
                               : match.result === 'Lost'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
+                                  ? 'text-white'
+                                  : 'text-white'
+                              }`} style={{ 
+                                backgroundColor: match.result === 'Won' ? nsbmGreen : match.result === 'Lost' ? '#ef4444' : '#6b7280'
+                              }}>
                             {match.result}
                           </span>
-                          <p className="text-xs text-gray-500 mt-1">{match.score}</p>
+                              <span className="text-xs text-gray-500">Result</span>
                         </div>
+                            {match.score && (
+                              <p className="text-sm text-gray-700 mt-2 font-mono">{match.score}</p>
                       )}
-                      <div className="flex justify-end space-x-2 mt-4">
+                          </div>
+                        )}
+                        <div className="flex justify-end space-x-2 mt-4 pt-3" style={{ borderTop: `1px solid ${getNsbmGreen(0.2)}` }}>
                         <button
                           onClick={() => handleEditMatch(match)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          <Edit className="w-4 h-4" />
+                            className="flex items-center px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                            style={{ 
+                              color: nsbmGreen, 
+                              backgroundColor: getNsbmGreen(0.1),
+                              border: `1px solid ${getNsbmGreen(0.3)}`
+                            }}
+                            title="Edit Match"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            <span className="text-sm font-semibold">Edit</span>
                         </button>
                         <button
                           onClick={() => handleDeleteMatch(match.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <Trash2 className="w-4 h-4" />
+                            className="flex items-center px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                            style={{ 
+                              color: '#ef4444', 
+                              backgroundColor: '#fef2f2',
+                              border: '1px solid #fecaca'
+                            }}
+                            title="Delete Match"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            <span className="text-sm font-semibold">Delete</span>
                         </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -533,10 +561,14 @@ const ClubOperations = () => {
           {activeTab === 'events' && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Club Events</h3>
+                <h3 className="text-xl font-bold flex items-center" style={{ color: nsbmGreen }}>
+                  <Calendar className="w-6 h-6 mr-3 p-1 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }} />
+                  Club Events
+                </h3>
                 <button
                   onClick={() => setShowEventModal(true)}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                  className="inline-flex items-center px-6 py-3 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-200"
+                  style={{ backgroundColor: nsbmGreen }}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Schedule Event
@@ -545,18 +577,25 @@ const ClubOperations = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {events.map((event) => (
-                  <div key={event.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="h-32 bg-gray-200 relative">
-                      {event.image && (
+                  <div key={event.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-200" style={{ backgroundColor: colors.backgroundPrimary }}>
+                    <div className="h-32 relative">
+                      {event.image ? (
                         <img
-                          src={event.image}
+                          src={URL.createObjectURL(event.image)}
                           alt={event.title}
                           className="w-full h-full object-cover"
                         />
+                      ) : (
+                        <div className="h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${getNsbmGreen(0.1)}, ${getNsbmGreen(0.05)})` }}>
+                          <div className="text-center">
+                            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                            <span className="text-sm text-gray-500">{event.title}</span>
+                          </div>
+                        </div>
                       )}
                       {event.featured && (
                         <div className="absolute top-2 right-2">
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: nsbmGreen }}>
                             Featured
                           </span>
                         </div>
@@ -566,31 +605,45 @@ const ClubOperations = () => {
                       <h4 className="font-semibold text-gray-900 mb-2">{event.title}</h4>
                       <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          {new Date(event.date).toLocaleDateString()}
+                          <Calendar className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{new Date(event.date).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2" />
-                          {event.time}
+                          <Clock className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{event.time}</span>
                         </div>
                         <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {event.venue}
+                          <MapPin className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{event.venue}</span>
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 mt-2">{event.description}</p>
-                      <div className="flex justify-end space-x-2 mt-4">
+                      <div className="flex justify-end space-x-2 mt-4 pt-3" style={{ borderTop: `1px solid ${getNsbmGreen(0.2)}` }}>
                         <button
                           onClick={() => handleEditEvent(event)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="flex items-center px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                          style={{ 
+                            color: nsbmGreen, 
+                            backgroundColor: getNsbmGreen(0.1),
+                            border: `1px solid ${getNsbmGreen(0.3)}`
+                          }}
+                          title="Edit Event"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-4 h-4 mr-1" />
+                          <span className="text-sm font-semibold">Edit</span>
                         </button>
                         <button
                           onClick={() => handleDeleteEvent(event.id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="flex items-center px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                          style={{ 
+                            color: '#ef4444', 
+                            backgroundColor: '#fef2f2',
+                            border: '1px solid #fecaca'
+                          }}
+                          title="Delete Event"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          <span className="text-sm font-semibold">Delete</span>
                         </button>
                       </div>
                     </div>
@@ -604,10 +657,14 @@ const ClubOperations = () => {
           {activeTab === 'training-schedule' && (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Training Schedule</h3>
+                <h3 className="text-xl font-bold flex items-center" style={{ color: nsbmGreen }}>
+                  <Users className="w-6 h-6 mr-3 p-1 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }} />
+                  Training Schedule
+                </h3>
                 <button
                   onClick={() => setShowTrainingModal(true)}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                  className="inline-flex items-center px-6 py-3 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-200"
+                  style={{ backgroundColor: nsbmGreen }}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Schedule Training
@@ -616,23 +673,22 @@ const ClubOperations = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {trainingSchedule.map((training) => (
-                  <div key={training.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="h-32 bg-gray-200 relative">
-                      {training.image && (
-                        <img
-                          src={training.image}
-                          alt={training.title}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                  <div key={training.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-200" style={{ backgroundColor: colors.backgroundPrimary }}>
+                    <div className="h-32 relative flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${getNsbmGreen(0.1)}, ${getNsbmGreen(0.05)})` }}>
+                      <div className="text-center">
+                        <Users className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                        <span className="text-sm text-gray-500">{training.title}</span>
+                      </div>
                       <div className="absolute top-2 right-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
                           training.status === 'scheduled' 
-                            ? 'bg-blue-100 text-blue-800' 
+                            ? '' 
                             : training.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                            ? ''
+                            : ''
+                        }`} style={{ 
+                          backgroundColor: training.status === 'scheduled' ? getNsbmGreen(0.8) : training.status === 'completed' ? nsbmGreen : '#6b7280'
+                        }}>
                           {training.status}
                         </span>
                       </div>
@@ -641,56 +697,74 @@ const ClubOperations = () => {
                       <h4 className="font-semibold text-gray-900 mb-2">{training.title}</h4>
                       <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          {new Date(training.date).toLocaleDateString()}
+                          <Calendar className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{new Date(training.date).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2" />
-                          {training.time} ({training.duration})
+                          <Clock className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{training.time} ({training.duration})</span>
                         </div>
                         <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {training.venue}
+                          <MapPin className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{training.venue}</span>
                         </div>
                         <div className="flex items-center">
-                          <Users className="w-4 h-4 mr-2" />
-                          {training.coach}
+                          <Users className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{training.coach}</span>
                         </div>
                         <div className="flex items-center">
-                          <Trophy className="w-4 h-4 mr-2" />
-                          {training.type}
+                          <Trophy className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
+                          <span className="font-medium">{training.type}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-500">
                             {training.registeredPlayers}/{training.maxPlayers} players
                           </span>
-                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div className="w-16 rounded-full h-2" style={{ backgroundColor: getNsbmGreen(0.2) }}>
                             <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${(training.registeredPlayers / training.maxPlayers) * 100}%` }}
+                              className="h-2 rounded-full" 
+                              style={{ 
+                                width: `${(training.registeredPlayers / training.maxPlayers) * 100}%`,
+                                backgroundColor: nsbmGreen
+                              }}
                             ></div>
                           </div>
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 mt-2">{training.description}</p>
-                      <div className="flex justify-between items-center mt-4">
+                      <div className="flex justify-between items-center mt-4 pt-3" style={{ borderTop: `1px solid ${getNsbmGreen(0.2)}` }}>
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEditTraining(training)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="flex items-center px-3 py-1 rounded-lg transition-all duration-200 hover:shadow-md"
+                            style={{ 
+                              color: nsbmGreen, 
+                              backgroundColor: getNsbmGreen(0.1),
+                              border: `1px solid ${getNsbmGreen(0.3)}`
+                            }}
+                            title="Edit Training"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4 mr-1" />
+                            <span className="text-sm font-semibold">Edit</span>
                           </button>
                           <button
                             onClick={() => handleDeleteTraining(training.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="flex items-center px-3 py-1 rounded-lg transition-all duration-200 hover:shadow-md"
+                            style={{ 
+                              color: '#ef4444', 
+                              backgroundColor: '#fef2f2',
+                              border: '1px solid #fecaca'
+                            }}
+                            title="Delete Training"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            <span className="text-sm font-semibold">Delete</span>
                           </button>
                         </div>
                         <button
                           onClick={() => setActiveTab('attendance')}
-                          className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                          className="inline-flex items-center px-4 py-2 text-white rounded-lg text-sm font-semibold hover:shadow-md transition-all duration-200"
+                          style={{ backgroundColor: nsbmGreen }}
                         >
                           <Users className="w-3 h-3 mr-1" />
                           Mark Attendance
@@ -707,7 +781,7 @@ const ClubOperations = () => {
           {activeTab === 'attendance' && (
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Training Attendance</h3>
+                <h3 className="text-lg font-medium text-white/70">Training Attendance</h3>
                 <div className="mt-4 sm:mt-0 flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
                     <Filter className="w-4 h-4 text-gray-400" />
@@ -832,11 +906,12 @@ const ClubOperations = () => {
 
       {/* Match Modal */}
       {showMatchModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-2xl" style={{ backgroundColor: colors.backgroundPrimary }}>
             <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold flex items-center" style={{ color: nsbmGreen }}>
+                  <Trophy className="w-6 h-6 mr-3 p-1 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }} />
                   {editingMatch ? 'Edit Match' : 'Schedule New Match'}
                 </h3>
                 <button
@@ -844,7 +919,12 @@ const ClubOperations = () => {
                     setShowMatchModal(false);
                     setEditingMatch(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                  style={{ 
+                    color: '#ef4444', 
+                    backgroundColor: '#fef2f2',
+                    border: '1px solid #fecaca'
+                  }}
                 >
                   <XCircle className="w-6 h-6" />
                 </button>
@@ -853,7 +933,8 @@ const ClubOperations = () => {
               <form onSubmit={handleMatchSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="text-sm font-semibold mb-3 flex items-center" style={{ color: nsbmGreen }}>
+                      <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: nsbmGreen }}></div>
                       Opponent *
                     </label>
                     <input
@@ -861,11 +942,25 @@ const ClubOperations = () => {
                       value={matchForm.opponent}
                       onChange={(e) => setMatchForm(prev => ({ ...prev, opponent: e.target.value }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                      style={{ 
+                        backgroundColor: colors.backgroundSecondary,
+                        borderColor: colors.borderLight,
+                        color: colors.textPrimary
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = nsbmGreen;
+                        e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = colors.borderLight;
+                        e.target.style.boxShadow = 'none';
+                      }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="text-sm font-semibold mb-3 flex items-center" style={{ color: nsbmGreen }}>
+                      <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: nsbmGreen }}></div>
                       Date *
                     </label>
                     <input
@@ -873,7 +968,20 @@ const ClubOperations = () => {
                       value={matchForm.date}
                       onChange={(e) => setMatchForm(prev => ({ ...prev, date: e.target.value }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                      style={{ 
+                        backgroundColor: colors.backgroundSecondary,
+                        borderColor: colors.borderLight,
+                        color: colors.textPrimary
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = nsbmGreen;
+                        e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = colors.borderLight;
+                        e.target.style.boxShadow = 'none';
+                      }}
                     />
                   </div>
                   <div>
@@ -917,18 +1025,6 @@ const ClubOperations = () => {
                       <option value="Friendly">Friendly</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      value={matchForm.image}
-                      onChange={(e) => setMatchForm(prev => ({ ...prev, image: e.target.value }))}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
                 </div>
 
                 <div>
@@ -950,13 +1046,18 @@ const ClubOperations = () => {
                       setShowMatchModal(false);
                       setEditingMatch(null);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    className="px-6 py-3 rounded-xl text-gray-700 hover:shadow-md transition-all duration-200"
+                    style={{ 
+                      backgroundColor: colors.backgroundSecondary,
+                      border: `1px solid ${colors.borderLight}`
+                    }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="px-6 py-3 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold"
+                    style={{ backgroundColor: nsbmGreen }}
                   >
                     {editingMatch ? 'Update Match' : 'Schedule Match'}
                   </button>
@@ -969,11 +1070,12 @@ const ClubOperations = () => {
 
       {/* Training Schedule Modal */}
       {showTrainingModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-2xl" style={{ backgroundColor: colors.backgroundPrimary }}>
             <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold flex items-center" style={{ color: nsbmGreen }}>
+                  <Users className="w-6 h-6 mr-3 p-1 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }} />
                   {editingTraining ? 'Edit Training Session' : 'Schedule New Training'}
                 </h3>
                 <button
@@ -981,7 +1083,12 @@ const ClubOperations = () => {
                     setShowTrainingModal(false);
                     setEditingTraining(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                  style={{ 
+                    color: '#ef4444', 
+                    backgroundColor: '#fef2f2',
+                    border: '1px solid #fecaca'
+                  }}
                 >
                   <XCircle className="w-6 h-6" />
                 </button>
@@ -1098,18 +1205,6 @@ const ClubOperations = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      value={trainingForm.image}
-                      onChange={(e) => setTrainingForm(prev => ({ ...prev, image: e.target.value }))}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
                 </div>
 
                 <div>
@@ -1132,13 +1227,18 @@ const ClubOperations = () => {
                       setShowTrainingModal(false);
                       setEditingTraining(null);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    className="px-6 py-3 rounded-xl text-gray-700 hover:shadow-md transition-all duration-200"
+                    style={{ 
+                      backgroundColor: colors.backgroundSecondary,
+                      border: `1px solid ${colors.borderLight}`
+                    }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="px-6 py-3 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold"
+                    style={{ backgroundColor: nsbmGreen }}
                   >
                     {editingTraining ? 'Update Training' : 'Schedule Training'}
                   </button>
@@ -1151,11 +1251,12 @@ const ClubOperations = () => {
 
       {/* Event Modal */}
       {showEventModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-2xl" style={{ backgroundColor: colors.backgroundPrimary }}>
             <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold flex items-center" style={{ color: nsbmGreen }}>
+                  <Calendar className="w-6 h-6 mr-3 p-1 rounded-lg" style={{ backgroundColor: getNsbmGreen(0.1) }} />
                   {editingEvent ? 'Edit Event' : 'Schedule New Event'}
                 </h3>
                 <button
@@ -1163,7 +1264,12 @@ const ClubOperations = () => {
                     setShowEventModal(false);
                     setEditingEvent(null);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                  style={{ 
+                    color: '#ef4444', 
+                    backgroundColor: '#fef2f2',
+                    border: '1px solid #fecaca'
+                  }}
                 >
                   <XCircle className="w-6 h-6" />
                 </button>
@@ -1219,18 +1325,6 @@ const ClubOperations = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      value={eventForm.image}
-                      onChange={(e) => setEventForm(prev => ({ ...prev, image: e.target.value }))}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -1258,6 +1352,60 @@ const ClubOperations = () => {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Event Image
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                    <input
+                      type="file"
+                      id="eventImage"
+                      accept="image/jpeg,image/jpg,image/png"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          // Validate file type
+                          if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+                            alert('Please select a valid JPG or PNG image file.');
+                            return;
+                          }
+                          // Validate file size (max 5MB)
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert('File size must be less than 5MB.');
+                            return;
+                          }
+                          setEventForm(prev => ({ ...prev, image: file }));
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <label htmlFor="eventImage" className="cursor-pointer">
+                      <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {eventForm.image ? eventForm.image.name : 'Click to upload image'}
+                        </p>
+                        <p className="text-xs text-gray-500">JPG or PNG, max 5MB</p>
+                      </div>
+                    </label>
+                    {eventForm.image && (
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          onClick={() => setEventForm(prev => ({ ...prev, image: null }))}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Remove Image
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
@@ -1265,13 +1413,18 @@ const ClubOperations = () => {
                       setShowEventModal(false);
                       setEditingEvent(null);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    className="px-6 py-3 rounded-xl text-gray-700 hover:shadow-md transition-all duration-200"
+                    style={{ 
+                      backgroundColor: colors.backgroundSecondary,
+                      border: `1px solid ${colors.borderLight}`
+                    }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="px-6 py-3 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold"
+                    style={{ backgroundColor: nsbmGreen }}
                   >
                     {editingEvent ? 'Update Event' : 'Schedule Event'}
                   </button>
@@ -1286,7 +1439,7 @@ const ClubOperations = () => {
       {activeTab === 'fitness' && (
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-            <h3 className="text-lg font-medium text-gray-900">Player Fitness Management</h3>
+            <h3 className="text-lg font-medium text-white/70">Player Fitness Management</h3>
             <div className="mt-4 sm:mt-0 flex items-center space-x-4">
               <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
                 <Download className="w-4 h-4 mr-1" />
@@ -1312,7 +1465,7 @@ const ClubOperations = () => {
                     <p className="text-xs text-gray-400">{player.email}</p>
                   </div>
                   <button
-                    onClick={() => openFitnessModal(player.id)}
+                    onClick={() => saveFitnessData(player.id)}
                     className="p-2 text-gray-400 hover:text-blue-600"
                   >
                     <Edit className="w-4 h-4" />

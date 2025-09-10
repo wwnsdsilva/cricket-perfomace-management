@@ -4,7 +4,6 @@ import {
   Calendar, 
   Trophy, 
   BarChart3, 
-  Settings, 
   Menu, 
   X, 
   LogOut,
@@ -28,7 +27,6 @@ const AdminLayout = ({ children }) => {
     { name: 'Match Data Entry', href: '/admin/matches', icon: Trophy },
     { name: 'Club Operations', href: '/admin/operations', icon: Calendar },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
   const handleLogout = () => {
@@ -60,10 +58,10 @@ const AdminLayout = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <div className={`sidebar-container fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 h-screen flex flex-col ${
+      <div className={`sidebar-container fixed inset-y-0 left-0 z-50 w-64 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 h-screen flex flex-col ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+      }`} style={{background: `linear-gradient(135deg, #0A0E27, #1A1A2E, #16213E)`}}>
+        <div className="flex items-center justify-between h-16 px-6 border-b border-white/20">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 rounded-lg overflow-hidden">
               <img 
@@ -72,11 +70,11 @@ const AdminLayout = ({ children }) => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="text-xl font-bold text-gray-900">Cricket Admin</span>
+            <span className="text-xl font-bold text-white">Cricket Admin</span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="lg:hidden p-2 rounded-md text-white/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -94,10 +92,10 @@ const AdminLayout = ({ children }) => {
                     navigate(item.href);
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 ${
                     isActive(item.href)
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-white/20 text-white border-r-2 border-white'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
                   }`}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                 >
@@ -109,10 +107,10 @@ const AdminLayout = ({ children }) => {
           </div>
         </nav>
 
-        <div className="mt-auto p-4 border-t border-gray-200">
+        <div className="mt-auto p-4 border-t border-white/20">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
+            className="w-full flex items-center px-3 py-2 text-sm font-medium text-white/70 rounded-lg hover:bg-white/10 hover:text-white transition-colors duration-200"
           >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
@@ -135,7 +133,12 @@ const AdminLayout = ({ children }) => {
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
+                <div 
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #002171, #0D47A1)'
+                  }}
+                >
                   <span className="text-white text-sm font-medium">A</span>
                 </div>
                 <div className="hidden sm:block">

@@ -1,9 +1,9 @@
 // Sample player data for the Player Dashboard
 export const samplePlayerData = {
   id: 1,
-  name: 'Monil Jason',
+  name: 'Dulaj',
   role: 'All-rounder',
-  photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+  photo: '/images/gallery/players/dulaj.jpg',
   team: 'Cricket Club A',
   joiningDate: '2023-01-15',
   currentSeason: {
@@ -73,7 +73,7 @@ export const samplePlayerData = {
   upcomingMatches: [
     {
       id: 1,
-      opponent: 'City Cricket Club',
+      opponent: 'APIIT',
       date: '2024-01-20',
       time: '14:00',
       venue: 'Central Ground',
@@ -82,11 +82,11 @@ export const samplePlayerData = {
     },
     {
       id: 2,
-      opponent: 'Riverside CC',
+      opponent: 'KDU',
       date: '2024-01-25',
       time: '10:00',
       venue: 'Riverside Park',
-      type: 'ODI',
+      type: 'T10',
       status: 'Confirmed'
     }
   ],
@@ -111,7 +111,7 @@ export const samplePlayerData = {
   recentResults: [
     {
       id: 1,
-      opponent: 'Valley CC',
+      opponent: 'SLIIT',
       date: '2024-01-10',
       result: 'Win',
       score: '245/8 (50) vs 198/10 (45.2)',
@@ -120,7 +120,7 @@ export const samplePlayerData = {
     },
     {
       id: 2,
-      opponent: 'Hillside CC',
+      opponent: 'IIT',
       date: '2024-01-05',
       result: 'Loss',
       score: '180/10 (42) vs 185/6 (38.5)',
@@ -129,7 +129,7 @@ export const samplePlayerData = {
     },
     {
       id: 3,
-      opponent: 'Lakeside CC',
+      opponent: 'SLTC',
       date: '2024-01-02',
       result: 'Draw',
       score: '220/8 (50) vs 220/9 (50)',

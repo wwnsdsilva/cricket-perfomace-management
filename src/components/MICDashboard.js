@@ -32,37 +32,28 @@ import {
   Trash2
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, RadialBarChart, RadialBar } from 'recharts';
+import { NSBM_DESIGN_SYSTEM, getBrandColor } from '../styles/nsbm-design-system';
 
-// NSBM Brand Colors - Light & Modern Theme
-const nsbmGreen = '#8BC34A'; // Primary accent green
-const nsbmBlue = '#0D47A1'; // Secondary accent blue
-const lightGreen = '#F1F8E9'; // Light green background
-const subtleGray = '#EEEEEE'; // Subtle gray
-const darkGray = '#333333'; // Dark text
+// NSBM Design System
+const { colors, shadows } = NSBM_DESIGN_SYSTEM;
+const nsbmGreen = colors.brandPrimary;
+const nsbmBlue = colors.brandSecondary;
+const nsbmGold = colors.brandAccent;
+const getNsbmGreen = (opacity = 1) => getBrandColor('brandPrimary', opacity);
+const getNsbmBlue = (opacity = 1) => getBrandColor('brandSecondary', opacity);
 
-// Light Theme Colors
-const mainBackground = '#F8F9FA'; // Very light gray main background
-const cardBackground = '#FFFFFF'; // Pure white for cards
-const cardBackgroundAlt = '#FDFDFD'; // Slightly off-white for variety
-const lightBorder = '#E5E7EB'; // Light gray borders
-const textPrimary = '#1F2937'; // Dark gray for primary text
-const textSecondary = '#6B7280'; // Medium gray for secondary text
-const textMuted = '#9CA3AF'; // Light gray for muted text
-const accentBlue = '#3B82F6'; // Modern blue accent
-const accentGreen = '#10B981'; // Modern green accent
-const successGreen = '#059669'; // Success green
-const errorRed = '#EF5350'; // Error red
-
-const nsbmPrimary = 'from-green-500 to-green-600'; // NSBM Green gradient
-const nsbmAccent = 'from-blue-900 to-blue-800'; // NSBM Blue gradient
-
-// Helper functions for colors with opacity
-const getNsbmBlue = (opacity = 1) => `rgba(13, 71, 161, ${opacity})`;
-const getNsbmGreen = (opacity = 1) => `rgba(139, 195, 74, ${opacity})`;
-const getAccentBlue = (opacity = 1) => `rgba(59, 130, 246, ${opacity})`;
-const getAccentGreen = (opacity = 1) => `rgba(16, 185, 129, ${opacity})`;
-const getSuccessGreen = (opacity = 1) => `rgba(5, 150, 105, ${opacity})`;
-const getErrorRed = (opacity = 1) => `rgba(239, 83, 80, ${opacity})`;
+// Aliases to match existing variable usage in this file
+const mainBackground = colors.backgroundSecondary;
+const cardBackground = colors.backgroundPrimary;
+const cardBackgroundAlt = colors.backgroundSecondary;
+const lightBorder = colors.borderLight;
+const textPrimary = colors.textPrimary;
+const textSecondary = colors.textSecondary;
+const textMuted = colors.textTertiary;
+const accentBlue = nsbmBlue;
+const accentGreen = nsbmGreen;
+const successGreen = colors.success;
+const errorRed = colors.error;
 
 const MICDashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -135,50 +126,50 @@ const MICDashboard = () => {
   };
 
   const players = [
-    { id: 1, name: 'Maneendra Jayathilaka', role: 'Batsman', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', batting: { average: 45.2, strikeRate: 140.4, runs: 1250 }, bowling: { average: 26.7, economy: 7.1, wickets: 12 }, fielding: { catches: 8, runOuts: 3 }, fitness: { sprint20m: 3.2, beepTest: 12.5, status: 'Healthy' }, attendance: 95 },
-    { id: 2, name: 'Monil Jason', role: 'All-rounder', photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', batting: { average: 18.5, strikeRate: 95.2, runs: 320 }, bowling: { average: 18.2, economy: 5.8, wickets: 28 }, fielding: { catches: 5, runOuts: 2 }, fitness: { sprint20m: 3.4, beepTest: 11.8, status: 'Healthy' }, attendance: 88 },
-    { id: 3, name: 'Dilhara Polgampola', role: 'Bowler', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', batting: { average: 38.9, strikeRate: 125.6, runs: 1100 }, bowling: { average: 35.2, economy: 8.2, wickets: 5 }, fielding: { catches: 12, runOuts: 1 }, fitness: { sprint20m: 3.1, beepTest: 12.1, status: 'Recovering' }, attendance: 92 },
-    { id: 4, name: 'Lahiru Abhesinghe', role: 'Batsman', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face', batting: { average: 42.1, strikeRate: 135.8, runs: 980 }, bowling: { average: 42.3, economy: 8.9, wickets: 3 }, fielding: { catches: 15, runOuts: 4 }, fitness: { sprint20m: 3.3, beepTest: 12.0, status: 'Healthy' }, attendance: 90 },
-    { id: 5, name: 'Asitha Wanninayaka', role: 'Bowler', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face', batting: { average: 22.3, strikeRate: 88.7, runs: 450 }, bowling: { average: 22.1, economy: 6.2, wickets: 24 }, fielding: { catches: 7, runOuts: 3 }, fitness: { sprint20m: 3.5, beepTest: 11.5, status: 'Healthy' }, attendance: 87 },
-    { id: 6, name: 'Suviru Sathnidu', role: 'All-rounder', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', batting: { average: 35.6, strikeRate: 128.3, runs: 890 }, bowling: { average: 28.4, economy: 7.5, wickets: 18 }, fielding: { catches: 11, runOuts: 2 }, fitness: { sprint20m: 3.0, beepTest: 12.8, status: 'Healthy' }, attendance: 94 },
-    { id: 7, name: 'Kavisha Weerasinghe', role: 'Wicket-keeper', photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face', batting: { average: 39.8, strikeRate: 132.1, runs: 1050 }, bowling: { average: 38.9, economy: 8.7, wickets: 4 }, fielding: { catches: 9, runOuts: 1 }, fitness: { sprint20m: 3.2, beepTest: 12.3, status: 'Healthy' }, attendance: 91 },
-    { id: 8, name: 'Chamod Hasalanka', role: 'Batsman', photo: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face', batting: { average: 16.7, strikeRate: 92.4, runs: 280 }, bowling: { average: 20.5, economy: 6.8, wickets: 26 }, fielding: { catches: 6, runOuts: 3 }, fitness: { sprint20m: 3.6, beepTest: 11.2, status: 'Healthy' }, attendance: 89 }
+    { id: 1, name: 'Monil Jason', role: 'Batsman', photo: '/images/gallery/players/maniya.jpg', batting: { average: 45.2, strikeRate: 140.4, runs: 1250 }, bowling: { average: 26.7, economy: 7.1, wickets: 12 }, fielding: { catches: 8, runOuts: 3 }, fitness: { sprint20m: 3.2, beepTest: 12.5, status: 'Healthy' }, attendance: 95 },
+    { id: 2, name: 'Dulaj Bandara', role: 'All-rounder', photo: '/images/gallery/players/dulaj.jpg', batting: { average: 18.5, strikeRate: 95.2, runs: 320 }, bowling: { average: 18.2, economy: 5.8, wickets: 28 }, fielding: { catches: 5, runOuts: 2 }, fitness: { sprint20m: 3.4, beepTest: 11.8, status: 'Healthy' }, attendance: 88 },
+    { id: 3, name: 'Suviru Sathnidu', role: 'Bowler', photo: '/images/gallery/players/suviru.jpg', batting: { average: 38.9, strikeRate: 125.6, runs: 1100 }, bowling: { average: 35.2, economy: 8.2, wickets: 5 }, fielding: { catches: 12, runOuts: 1 }, fitness: { sprint20m: 3.1, beepTest: 12.1, status: 'Recovering' }, attendance: 92 },
+    { id: 4, name: 'Lahiru Abhesinghe', role: 'Batsman', photo: '/images/gallery/players/lahiru.jpeg', batting: { average: 42.1, strikeRate: 135.8, runs: 980 }, bowling: { average: 42.3, economy: 8.9, wickets: 3 }, fielding: { catches: 15, runOuts: 4 }, fitness: { sprint20m: 3.3, beepTest: 12.0, status: 'Healthy' }, attendance: 90 },
+    { id: 5, name: 'Asitha Wanninayake', role: 'Bowler', photo: '/images/gallery/players/asitha.jpeg', batting: { average: 22.3, strikeRate: 88.7, runs: 450 }, bowling: { average: 22.1, economy: 6.2, wickets: 24 }, fielding: { catches: 7, runOuts: 3 }, fitness: { sprint20m: 3.5, beepTest: 11.5, status: 'Healthy' }, attendance: 87 },
+    { id: 6, name: 'Suviru Sathnidu', role: 'All-rounder', photo: '/images/gallery/players/suviru.jpg', batting: { average: 35.6, strikeRate: 128.3, runs: 890 }, bowling: { average: 28.4, economy: 7.5, wickets: 18 }, fielding: { catches: 11, runOuts: 2 }, fitness: { sprint20m: 3.0, beepTest: 12.8, status: 'Healthy' }, attendance: 94 },
+    { id: 7, name: 'Monil Jason', role: 'Wicket-keeper', photo: '/images/gallery/players/maniya.jpg', batting: { average: 39.8, strikeRate: 132.1, runs: 1050 }, bowling: { average: 38.9, economy: 8.7, wickets: 4 }, fielding: { catches: 9, runOuts: 1 }, fitness: { sprint20m: 3.2, beepTest: 12.3, status: 'Healthy' }, attendance: 91 },
+    { id: 8, name: 'Lahiru Abhesinghe', role: 'Batsman', photo: '/images/gallery/players/lahiru.jpeg', batting: { average: 16.7, strikeRate: 92.4, runs: 280 }, bowling: { average: 20.5, economy: 6.8, wickets: 26 }, fielding: { catches: 6, runOuts: 3 }, fitness: { sprint20m: 3.6, beepTest: 11.2, status: 'Healthy' }, attendance: 89 }
   ];
 
   const recentMatches = [
     {
       id: 1,
-      opponent: 'City Cricket Club',
+      opponent: 'APIIT',
       date: '2024-01-08',
       result: 'Win',
       score: '245/8 (50) vs 198/10 (45.2)',
       nrr: 0.94,
-      topPerformer: 'Maneendra Jayathilaka - 85 runs'
+      topPerformer: 'Monil Jason - 85 runs'
     },
     {
       id: 2,
-      opponent: 'Riverside CC',
+      opponent: 'KDU',
       date: '2024-01-05',
       result: 'Loss',
       score: '180/10 (42) vs 185/6 (38.5)',
       nrr: -0.12,
-      topPerformer: 'Monil Jason - 3/25'
+      topPerformer: 'Dulaj Bandara - 3/25'
     },
     {
       id: 3,
-      opponent: 'Mountain View CC',
+      opponent: 'SLIIT',
       date: '2024-01-02',
       result: 'Draw',
       score: '220/8 (50) vs 220/9 (50)',
       nrr: 0.0,
-      topPerformer: 'Dilhara Polgampola - 65 runs'
+      topPerformer: 'Suviru Sathnidu - 65 runs'
     }
   ];
 
   const upcomingMatches = [
     {
       id: 1,
-      opponent: 'Valley Cricket Club',
+      opponent: 'IIT',
       date: '2024-01-15',
       time: '14:00',
       venue: 'Central Ground',
@@ -186,11 +177,11 @@ const MICDashboard = () => {
     },
     {
       id: 2,
-      opponent: 'Hillside CC',
+      opponent: 'SLTC',
       date: '2024-01-18',
       time: '10:00',
       venue: 'Hillside Park',
-      type: 'ODI'
+      type: 'T10'
     }
   ];
 
@@ -336,9 +327,9 @@ const MICDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: mainBackground }}>
+    <div className="min-h-screen" style={{ backgroundColor: colors.backgroundSecondary }}>
       {/* Header */}
-      <header className="shadow-sm border-b" style={{ backgroundColor: cardBackground, borderColor: lightBorder }}>
+      <header className="shadow-sm border-b" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight }}>
         <div className="w-full mx-auto px-4 sm:px-6 xl:px-12">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -346,14 +337,19 @@ const MICDashboard = () => {
                 <img src="/images/logoNSBM.jpg" alt="NSBM Cricket Club" className="w-14 h-14 rounded-full ring-2 ring-white/30 shadow-lg" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">MIC Dashboard</h1>
-                <p className="text-sm text-gray-500">{teamData.name} • {teamData.season} Season</p>
+                <h1 className="text-xl font-semibold" style={{color: colors.textPrimary}}>MIC Dashboard</h1>
+                <p className="text-sm" style={{color: colors.textSecondary}}>{teamData.name} • {teamData.season} Season</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <button
                 onClick={exportToCSV}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-3 py-2 border rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  color: colors.textPrimary,
+                  backgroundColor: colors.backgroundPrimary,
+                  borderColor: colors.borderLight
+                }}
               >
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
@@ -361,14 +357,19 @@ const MICDashboard = () => {
               <button
                 onClick={exportToPDF}
                 className="inline-flex items-center px-3 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90"
-                style={{backgroundColor: nsbmBlue}}
+                style={{backgroundColor: nsbmGreen}}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Export PDF
               </button>
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-3 py-2 border rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  color: colors.textPrimary,
+                  backgroundColor: colors.backgroundPrimary,
+                  borderColor: colors.borderLight
+                }}
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -379,7 +380,7 @@ const MICDashboard = () => {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="border-b" style={{ backgroundColor: cardBackground, borderColor: lightBorder }}>
+      <div className="border-b" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight }}>
         <div className="w-full mx-auto px-4 sm:px-6 xl:px-12">
           <nav className="flex space-x-8 overflow-x-auto">
             {tabs.map((tab) => {
@@ -389,12 +390,14 @@ const MICDashboard = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    activeTab === tab.id ? 'text-gray-900 font-bold' : 'text-gray-700 hover:text-gray-900'
                   }`}
+                  style={{
+                    borderBottomColor: activeTab === tab.id ? nsbmGreen : 'transparent',
+                    backgroundColor: activeTab === tab.id ? getNsbmGreen(0.08) : 'transparent'
+                  }}
                 >
-                  <Icon className="w-4 h-4 mr-2" />
+                  <Icon className="w-4 h-4 mr-2" style={{color: activeTab === tab.id ? nsbmGreen : colors.textSecondary}} />
                   {tab.name}
                 </button>
               );
@@ -409,7 +412,7 @@ const MICDashboard = () => {
         {activeTab === 'home' && (
           <div className="space-y-6">
             {/* Team Overview */}
-            <div className="rounded-xl p-6 text-white" style={{background: `linear-gradient(135deg, ${nsbmBlue} 0%, ${nsbmGreen} 100%)`}}>
+            <div className="rounded-xl p-6 text-white" style={{background: `linear-gradient(135deg, #0A0E27 0%, #1A1A2E 35%, ${nsbmGreen} 100%)`}}>
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2">
@@ -427,11 +430,11 @@ const MICDashboard = () => {
             </div>
 
             {/* Club Events */}
-            <div className="rounded-xl shadow-sm border p-6" style={{ backgroundColor: cardBackground, borderColor: lightBorder }}>
+            <div className="rounded-xl shadow-sm border p-6" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight, boxShadow: shadows.sm }}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5" style={{ color: accentBlue }} />
-                  <h3 className="text-lg font-semibold" style={{ color: textPrimary }}>Club Events</h3>
+                  <Calendar className="w-5 h-5" style={{ color: nsbmGreen }} />
+                  <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Club Events</h3>
                 </div>
                 <div className="flex space-x-1">
                   <button onClick={prevEvent} className="p-1 rounded-full hover:bg-gray-100" aria-label="Previous event">
@@ -465,7 +468,7 @@ const MICDashboard = () => {
                   </div>
                   {sampleEvents[eventIndex].featured && (
                     <div className="absolute top-2 right-2">
-                      <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+                      <span className="text-white text-xs px-2 py-1 rounded-full" style={{backgroundColor: nsbmGold}}>
                         Featured
                       </span>
                     </div>
@@ -526,74 +529,77 @@ const MICDashboard = () => {
               </div>
             </div>
 
-            {/* Recent Results */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center space-x-2 mb-4">
-                <Activity className="w-5 h-5" style={{color: nsbmBlue}} />
-                <h3 className="text-lg font-semibold text-gray-900">Last 3 Match Results</h3>
+            {/* Recent & Upcoming Matches Side-by-side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Recent Matches */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Activity className="w-5 h-5" style={{color: nsbmBlue}} />
+                  <h3 className="text-lg font-semibold text-gray-900">Recent Matches</h3>
+                </div>
+                <div className="space-y-4">
+                  {recentMatches.map((match) => (
+                    <div key={match.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h4 className="font-medium text-gray-900">vs {match.opponent}</h4>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.result)}`}>
+                            {match.result}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">{match.score}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>{new Date(match.date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <TrendingUp className="w-3 h-3" />
+                            <span>NRR: {match.nrr}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">Top Performer</p>
+                        <p className="text-xs text-gray-600">{match.topPerformer}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-4">
-                {recentMatches.map((match) => (
-                  <div key={match.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
+
+              {/* Upcoming Matches */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Calendar className="w-5 h-5" style={{color: nsbmBlue}} />
+                  <h3 className="text-lg font-semibold text-gray-900">Upcoming Matches</h3>
+                </div>
+                <div className="space-y-4">
+                  {upcomingMatches.map((match) => (
+                    <div key={match.id} className="p-4 rounded-lg border" style={{backgroundColor: getNsbmBlue(0.05), borderColor: getNsbmBlue(0.2)}}>
+                      <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-gray-900">vs {match.opponent}</h4>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.result)}`}>
-                          {match.result}
+                        <span className="text-xs px-2 py-1 rounded-full" style={{backgroundColor: getNsbmBlue(0.1), color: nsbmBlue}}>
+                          {match.type}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">{match.score}</p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-3 h-3" />
                           <span>{new Date(match.date).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <TrendingUp className="w-3 h-3" />
-                          <span>NRR: {match.nrr}</span>
+                          <Clock className="w-3 h-3" />
+                          <span>{match.time}</span>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">Top Performer</p>
-                      <p className="text-xs text-gray-600">{match.topPerformer}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Upcoming Matches */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center space-x-2 mb-4">
-                <Calendar className="w-5 h-5" style={{color: nsbmBlue}} />
-                <h3 className="text-lg font-semibold text-gray-900">Upcoming Matches</h3>
-              </div>
-              <div className="space-y-4">
-                {upcomingMatches.map((match) => (
-                  <div key={match.id} className="p-4 rounded-lg border" style={{backgroundColor: getNsbmBlue(0.05), borderColor: getNsbmBlue(0.2)}}>
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">vs {match.opponent}</h4>
-                      <span className="text-xs px-2 py-1 rounded-full" style={{backgroundColor: getNsbmBlue(0.1), color: nsbmBlue}}>
-                        {match.type}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{new Date(match.date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{match.time}</span>
+                      <div className="flex items-center space-x-1 mt-2 text-xs text-gray-500">
+                        <MapPin className="w-3 h-3" />
+                        <span>{match.venue}</span>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-1 mt-2 text-xs text-gray-500">
-                      <MapPin className="w-3 h-3" />
-                      <span>{match.venue}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -818,63 +824,57 @@ const MICDashboard = () => {
             {/* Performance Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {players.map((player) => (
-                <div key={player.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden">
-                      <img 
-                        src={player.photo} 
-                        alt={player.name}
-                        className="w-full h-full object-cover"
-                      />
+                <div
+                  key={player.id}
+                  className="rounded-xl border p-5 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
+                  style={{ borderColor: colors.borderLight }}
+                >
+                  {/* Card header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-14 h-14 rounded-full overflow-hidden ring-2" style={{ borderColor: 'transparent', boxShadow: shadows.sm }}>
+                        <img
+                          src={player.photo}
+                          alt={player.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold" style={{ color: colors.textPrimary }}>{player.name}</h3>
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: getNsbmGreen(0.1), color: nsbmGreen }}>
+                          {player.role}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{player.name}</h3>
-                      <p className="text-sm text-gray-500">{player.role}</p>
+                    <div className="text-right">
+                      <p className="text-xs" style={{ color: colors.textSecondary }}>Season runs</p>
+                      <p className="text-lg font-bold" style={{ color: colors.textPrimary }}>{player.batting.runs}</p>
                     </div>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Batting</h4>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Average:</span>
-                          <span className="font-medium">{player.batting.average}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Strike Rate:</span>
-                          <span className="font-medium">{player.batting.strikeRate}</span>
-                        </div>
-                      </div>
+
+                  {/* Stats grid */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-lg p-3" style={{ backgroundColor: colors.backgroundSecondary }}>
+                      <p className="text-xs" style={{ color: colors.textSecondary }}>Bat Avg</p>
+                      <p className="text-lg font-semibold" style={{ color: colors.textPrimary }}>{player.batting.average}</p>
+                      <p className="text-xs" style={{ color: colors.textTertiary }}>SR {player.batting.strikeRate}</p>
                     </div>
-                    
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Bowling</h4>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Average:</span>
-                          <span className="font-medium">{player.bowling.average}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Economy:</span>
-                          <span className="font-medium">{player.bowling.economy}</span>
-                        </div>
-                      </div>
+                    <div className="rounded-lg p-3" style={{ backgroundColor: colors.backgroundSecondary }}>
+                      <p className="text-xs" style={{ color: colors.textSecondary }}>Bowl Avg</p>
+                      <p className="text-lg font-semibold" style={{ color: colors.textPrimary }}>{player.bowling.average}</p>
+                      <p className="text-xs" style={{ color: colors.textTertiary }}>Eco {player.bowling.economy}</p>
                     </div>
-                    
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Fielding</h4>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Catches:</span>
-                          <span className="font-medium">{player.fielding.catches}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Run Outs:</span>
-                          <span className="font-medium">{player.fielding.runOuts}</span>
-                        </div>
-                      </div>
+                    <div className="rounded-lg p-3" style={{ backgroundColor: colors.backgroundSecondary }}>
+                      <p className="text-xs" style={{ color: colors.textSecondary }}>Fielding</p>
+                      <p className="text-lg font-semibold" style={{ color: colors.textPrimary }}>{player.fielding.catches + player.fielding.runOuts}</p>
+                      <p className="text-xs" style={{ color: colors.textTertiary }}>C {player.fielding.catches} • RO {player.fielding.runOuts}</p>
                     </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="text-xs" style={{ color: colors.textTertiary }}>Fitness: {player.fitness.status}</div>
+                    <div className="text-xs" style={{ color: colors.textSecondary }}>Attendance: {player.attendance}%</div>
                   </div>
                 </div>
               ))}

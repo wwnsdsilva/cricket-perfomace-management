@@ -16,7 +16,6 @@ const AdminPage = () => {
         <Route path="/matches" element={<MatchDataEntry />} />
         <Route path="/operations" element={<ClubOperations />} />
         <Route path="/reports" element={<Reports />} />
-        <Route path="/settings" element={<div className="p-8 text-center text-gray-500">Settings page coming soon...</div>} />
         <Route path="*" element={<AdminDashboard />} />
       </Routes>
     </AdminLayout>
