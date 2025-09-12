@@ -617,9 +617,18 @@ const ClubInformation = () => {
 
         {/* Full Squad Section with NSBM Branding */}
         {showFullSquad && (
-          <NSBMCard className="mt-8 p-6" elevated>
-            <NSBMSectionHeader icon={Users} title="Full Squad" />
-            <div className="space-y-6">
+          <NSBMCard className="mt-8 p-6 relative overflow-hidden" elevated>
+            {/* Faded Background Image */}
+            <div 
+              className="absolute inset-0 opacity-5 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: 'url(/images/logoNSBM.jpg)'
+              }}
+            />
+            {/* Content */}
+            <div className="relative z-10">
+              <NSBMSectionHeader icon={Users} title="Full Squad" />
+              <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {samplePlayers.map(player => (
                       <NSBMCard
@@ -698,6 +707,7 @@ const ClubInformation = () => {
                         )}
                       </NSBMCard>
                 ))}
+              </div>
               </div>
             </div>
           </NSBMCard>

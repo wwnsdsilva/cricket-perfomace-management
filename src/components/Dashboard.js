@@ -104,21 +104,21 @@ const Dashboard = () => {
     <div className="min-h-screen" style={{ backgroundColor: mainBackground }}>
       {/* Header */}
       <header className="shadow-sm border-b" style={{ backgroundColor: cardBackground, borderColor: lightBorder }}>
-        <div className="w-full mx-auto px-4 sm:px-6 xl:px-12">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+        <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-12">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 sm:py-4 space-y-2 sm:space-y-0">
+            <div className="flex-1">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
                 Welcome back, {user?.name || 'User'}!
               </h1>
-              <p className="text-gray-600">Here's what's happening with your cricket club</p>
+              <p className="text-sm sm:text-base text-gray-600">Here's what's happening with your cricket club</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative">
-                <Bell className="w-6 h-6 text-gray-400" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></span>
               </div>
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs sm:text-sm font-medium">
                   {user?.name?.charAt(0) || 'U'}
                 </span>
               </div>
@@ -127,13 +127,13 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="w-full mx-auto px-4 sm:px-6 xl:px-12 py-8">
+      <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-12 py-4 sm:py-6 lg:py-8">
         {/* Announcements Ticker */}
-        <div className="mb-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-4 text-white">
-          <div className="flex items-center space-x-3">
-            <Bell className="w-5 h-5" />
+        <div className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-3 sm:p-4 text-white">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium animate-pulse">
+              <p className="text-xs sm:text-sm font-medium animate-pulse">
                 {clubAnnouncements[currentAnnouncementIndex]}
               </p>
             </div>
@@ -141,57 +141,57 @@ const Dashboard = () => {
         </div>
 
         {/* Player of the Month */}
-        <div className="mb-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-6 text-white">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white">
+        <div className="mb-6 sm:mb-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-4 sm:p-6 text-white">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full overflow-hidden border-2 sm:border-4 border-white">
               <img 
                 src={playerOfTheMonth.photo} 
                 alt={playerOfTheMonth.name}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <Award className="w-5 h-5" />
-                <span className="text-sm font-medium">Player of the Month</span>
+                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm font-medium">Player of the Month</span>
               </div>
-              <h3 className="text-xl font-bold">{playerOfTheMonth.name}</h3>
-              <p className="text-sm opacity-90">{playerOfTheMonth.stats}</p>
+              <h3 className="text-lg sm:text-xl font-bold truncate">{playerOfTheMonth.name}</h3>
+              <p className="text-xs sm:text-sm opacity-90 truncate">{playerOfTheMonth.stats}</p>
             </div>
-            <Star className="w-8 h-8 text-yellow-200" />
+            <Star className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-200 flex-shrink-0" />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Left Column */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Top Performers */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Top Batsmen */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Trophy className="w-5 h-5 text-yellow-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">Top Batsmen</h3>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">Top Batsmen</h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {topBatsmen.map((player, index) => (
-                    <div key={player.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    <div key={player.id} className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold">
                         {index + 1}
                       </div>
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden">
                         <img 
                           src={player.photo} 
                           alt={player.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{player.name}</p>
-                        <p className="text-sm text-gray-600">{player.runs} runs</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm sm:text-base font-medium text-gray-900 truncate">{player.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{player.runs} runs</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">{player.average}</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">{player.average}</p>
                         <p className="text-xs text-gray-500">Avg</p>
                       </div>
                     </div>
@@ -200,30 +200,30 @@ const Dashboard = () => {
               </div>
 
               {/* Top Bowlers */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Target className="w-5 h-5 text-red-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">Top Bowlers</h3>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">Top Bowlers</h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {topBowlers.map((player, index) => (
-                    <div key={player.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    <div key={player.id} className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold">
                         {index + 1}
                       </div>
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden">
                         <img 
                           src={player.photo} 
                           alt={player.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{player.name}</p>
-                        <p className="text-sm text-gray-600">{player.wickets} wickets</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm sm:text-base font-medium text-gray-900 truncate">{player.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{player.wickets} wickets</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">{player.economyRate}</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">{player.economyRate}</p>
                         <p className="text-xs text-gray-500">Econ</p>
                       </div>
                     </div>
@@ -240,29 +240,35 @@ const Dashboard = () => {
               </div>
               <div className="space-y-4">
                 {sampleMatches.map((match) => (
-                  <div key={match.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="font-medium text-gray-900">vs {match.opponent}</h4>
+                  <div key={match.id} className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <h4 className="text-lg font-semibold text-gray-900">NSBM vs {match.opponent}</h4>
+                        <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                          {match.type}
+                        </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.result)}`}>
                           {match.result}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">{match.score}</p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{new Date(match.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="w-3 h-3" />
-                          <span>{match.venue}</span>
-                        </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-center mb-3">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-900 mb-1">{match.score}</div>
+                        <div className="text-sm text-gray-600">Final Score</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">Top Performer</p>
-                      <p className="text-xs text-gray-600">{match.topPerformer}</p>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(match.date).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{match.venue}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
