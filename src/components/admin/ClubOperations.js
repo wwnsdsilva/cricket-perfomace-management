@@ -1448,6 +1448,37 @@ const ClubOperations = () => {
             </div>
           </div>
 
+          {/* Fitness Summary */}
+          <div className="mb-8 bg-white border border-gray-200 rounded-lg p-6">
+            <h4 className="text-lg font-medium text-gray-900 mb-4">Fitness Summary</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {Object.values(fitnessData).filter(data => data?.status === 'Healthy').length}
+                </div>
+                <div className="text-sm text-gray-600">Healthy Players</div>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {Object.values(fitnessData).filter(data => data?.status === 'Recovering').length}
+                </div>
+                <div className="text-sm text-gray-600">Recovering</div>
+              </div>
+              <div className="text-center p-4 bg-red-50 rounded-lg">
+                <div className="text-2xl font-bold text-red-600">
+                  {Object.values(fitnessData).filter(data => data?.status === 'Injured').length}
+                </div>
+                <div className="text-sm text-gray-600">Injured</div>
+              </div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">
+                  {Object.values(fitnessData).filter(data => data?.status === 'Rest').length}
+                </div>
+                <div className="text-sm text-gray-600">Rest</div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {samplePlayers.map((player) => (
               <div key={player.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
@@ -1550,37 +1581,7 @@ const ClubOperations = () => {
               </div>
             ))}
           </div>
-
-          {/* Fitness Summary */}
-          <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Fitness Summary</h4>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {Object.values(fitnessData).filter(data => data?.status === 'Healthy').length}
-                </div>
-                <div className="text-sm text-gray-600">Healthy Players</div>
-              </div>
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">
-                  {Object.values(fitnessData).filter(data => data?.status === 'Recovering').length}
-                </div>
-                <div className="text-sm text-gray-600">Recovering</div>
-              </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-600">
-                  {Object.values(fitnessData).filter(data => data?.status === 'Injured').length}
-                </div>
-                <div className="text-sm text-gray-600">Injured</div>
-              </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {Object.values(fitnessData).filter(data => data?.status === 'Rest').length}
-                </div>
-                <div className="text-sm text-gray-600">Rest</div>
-              </div>
-            </div>
-          </div>
+          
         </div>
       )}
     </div>
