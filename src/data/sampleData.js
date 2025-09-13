@@ -38,10 +38,10 @@ export const sampleUsers = [
 export const samplePlayers = [
   {
     id: 1,
-    name: "Monil Jason",
+    name: "Maneendra Jayathilaka",
     position: "Batsman",
     jerseyNumber: 18,
-    photo: "/images/gallery/players/maniya.jpg",
+    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     runs: 1120,
     average: 46.8,
     strikeRate: 136.2,
@@ -54,10 +54,10 @@ export const samplePlayers = [
   },
   {
     id: 2,
-    name: "Dulaj Bandara",
+    name: "Monil Jason",
     position: "All-rounder",
     jerseyNumber: 27,
-    photo: "/images/gallery/players/dulaj.jpg",
+    photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
     runs: 780,
     average: 35.4,
     strikeRate: 124.5,
@@ -70,10 +70,10 @@ export const samplePlayers = [
   },
   {
     id: 3,
-    name: "Suviru Sathnidu",
+    name: "Dilhara Polgampola",
     position: "Bowler",
     jerseyNumber: 33,
-    photo: "/images/gallery/players/suviru.jpg",
+    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
     runs: 210,
     average: 14.2,
     strikeRate: 92.1,
@@ -89,7 +89,7 @@ export const samplePlayers = [
     name: "Lahiru Abhesinghe",
     position: "Batsman",
     jerseyNumber: 7,
-    photo: "/images/gallery/players/lahiru.jpeg",
+    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     runs: 980,
     average: 41.3,
     strikeRate: 131.7,
@@ -102,10 +102,10 @@ export const samplePlayers = [
   },
   {
     id: 5,
-    name: "Asitha Wanninayake",
+    name: "Asitha Wanninayaka",
     position: "Bowler",
     jerseyNumber: 21,
-    photo: "/images/gallery/players/asitha.jpeg",
+    photo: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&h=150&fit=crop&crop=face",
     runs: 150,
     average: 11.5,
     strikeRate: 88.2,
@@ -121,7 +121,7 @@ export const samplePlayers = [
     name: "Suviru Sathnidu",
     position: "All-rounder",
     jerseyNumber: 45,
-    photo: "/images/gallery/players/suviru.jpg",
+    photo: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=150&h=150&fit=crop&crop=face",
     runs: 640,
     average: 32.0,
     strikeRate: 119.4,
@@ -134,10 +134,10 @@ export const samplePlayers = [
   },
   {
     id: 7,
-    name: "Monil Jason",
+    name: "Kavisha Weerasinghe",
     position: "Wicket-keeper",
     jerseyNumber: 63,
-    photo: "/images/gallery/players/maniya.jpg",
+    photo: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face",
     runs: 710,
     average: 37.1,
     strikeRate: 128.6,
@@ -150,10 +150,10 @@ export const samplePlayers = [
   },
   {
     id: 8,
-    name: "Lahiru Abhesinghe",
+    name: "Chamod Hasalanka",
     position: "Batsman",
     jerseyNumber: 14,
-    photo: "/images/gallery/players/lahiru.jpeg",
+    photo: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face",
     runs: 860,
     average: 39.0,
     strikeRate: 126.9,
@@ -169,7 +169,7 @@ export const samplePlayers = [
     name: "Dulaj Bandara",
     position: "Bowler",
     jerseyNumber: 90,
-    photo: "/images/gallery/players/dulaj.jpg",
+    photo: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face",
     runs: 190,
     average: 13.1,
     strikeRate: 91.7,
@@ -185,7 +185,7 @@ export const samplePlayers = [
 export const sampleMatches = [
   {
     id: 1,
-    opponent: "APIIT",
+    opponent: "Lions CC",
     date: "2024-01-15",
     venue: "Central Cricket Ground",
     result: "Win",
@@ -195,30 +195,30 @@ export const sampleMatches = [
   },
   {
     id: 2,
-    opponent: "KDU",
+    opponent: "Eagles CC",
     date: "2024-01-08",
     venue: "Riverside Stadium",
     result: "Loss",
     score: "156/10 (32.4) vs 198/7 (40.0)",
     topPerformer: "Mitchell Starc - 4/28",
-    type: "T10"
+    type: "ODI"
   },
   {
     id: 3,
-    opponent: "SLIIT",
+    opponent: "Tigers CC",
     date: "2024-01-01",
     venue: "Sunset Park",
     result: "Win",
     score: "312/6 (50.0) vs 298/9 (50.0)",
     topPerformer: "Virat Kohli - 112 runs",
-    type: "T20"
+    type: "ODI"
   }
 ];
 
 export const upcomingMatches = [
   {
     id: 4,
-    opponent: "IIT",
+    opponent: "Panthers CC",
     date: "2024-01-22",
     venue: "Mountain View Ground",
     time: "10:00 AM",
@@ -226,15 +226,15 @@ export const upcomingMatches = [
   },
   {
     id: 5,
-    opponent: "SLTC",
+    opponent: "Sharks CC",
     date: "2024-01-29",
     venue: "Ocean Park Stadium",
     time: "2:00 PM",
-    type: "T10"
+    type: "ODI"
   },
   {
     id: 6,
-    opponent: "SLIIT",
+    opponent: "Falcons CC",
     date: "2024-02-05",
     venue: "Sky High Ground",
     time: "11:00 AM",
@@ -276,14 +276,14 @@ export const sampleEvents = [
 ];
 
 export const playerOfTheMonth = {
-  name: "Maniya Silva",
-  photo: "/images/gallery/players/maniya.jpg",
+  name: "David Warner",
+  photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
   achievement: "Player of the Month - January 2024",
   stats: "1,250 runs in 15 matches with 3 centuries"
 };
 
 export const clubAnnouncements = [
-  "🏆 Congratulations to Maniya for being Player of the Month!",
+  "🏆 Congratulations to David Warner for being Player of the Month!",
   "📅 Annual Cricket Festival registration is now open!",
   "⚡ New training schedule available for all players",
   "🎯 Youth development program starting next month"

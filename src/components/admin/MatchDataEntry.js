@@ -29,8 +29,12 @@ const MatchDataEntry = () => {
     venue: '',
     matchType: 'T10',
     result: '',
-    score: '',
-    overs: '',
+    nsbmScore: '',
+    nsbmWickets: '',
+    nsbmOvers: '',
+    opponentScore: '',
+    opponentWickets: '',
+    opponentOvers: '',
     toss: '',
     decision: ''
   });
@@ -512,34 +516,168 @@ const MatchDataEntry = () => {
           <div className="group">
             <label className="text-sm font-semibold mb-3 flex items-center" style={{color: colors.textPrimary}}>
               <div className="w-6 h-6 rounded-lg mr-3 flex items-center justify-center" style={{backgroundColor: getNsbmGreen(0.1)}}>
-                <span className="text-xs font-bold" style={{color: nsbmGreen}}>S</span>
+                <span className="text-xs font-bold" style={{color: nsbmGreen}}>NS</span>
               </div>
-              Score
+              NSBM Score
             </label>
-            <div className="relative">
-            <input
-              type="text"
-              value={matchData.score}
-              onChange={(e) => handleMatchDataChange('score', e.target.value)}
-              placeholder="e.g., 150/5"
-                className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
-                style={{
-                  borderColor: colors.borderLight,
-                  backgroundColor: colors.backgroundSecondary,
-                  color: colors.textPrimary
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = nsbmGreen;
-                  e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
-                  e.target.style.transform = 'translateY(-2px)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = colors.borderLight;
-                  e.target.style.boxShadow = 'none';
-                  e.target.style.transform = 'translateY(0)';
-                }}
-            />
+            <div className="grid grid-cols-3 gap-4">
+              <div className="relative">
+                <input
+                  type="number"
+                  value={matchData.nsbmScore}
+                  onChange={(e) => handleMatchDataChange('nsbmScore', e.target.value)}
+                  placeholder="Runs"
+                    className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
+                    style={{
+                      borderColor: colors.borderLight,
+                      backgroundColor: colors.backgroundSecondary,
+                      color: colors.textPrimary
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = nsbmGreen;
+                      e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = colors.borderLight;
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={matchData.nsbmWickets}
+                  onChange={(e) => handleMatchDataChange('nsbmWickets', e.target.value)}
+                  placeholder="Wickets"
+                    className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
+                    style={{
+                      borderColor: colors.borderLight,
+                      backgroundColor: colors.backgroundSecondary,
+                      color: colors.textPrimary
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = nsbmGreen;
+                      e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = colors.borderLight;
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={matchData.nsbmOvers}
+                  onChange={(e) => handleMatchDataChange('nsbmOvers', e.target.value)}
+                  placeholder="Overs"
+                    className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
+                    style={{
+                      borderColor: colors.borderLight,
+                      backgroundColor: colors.backgroundSecondary,
+                      color: colors.textPrimary
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = nsbmGreen;
+                      e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = colors.borderLight;
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                />
+              </div>
+            </div>
           </div>
+          <div className="group">
+            <label className="text-sm font-semibold mb-3 flex items-center" style={{color: colors.textPrimary}}>
+              <div className="w-6 h-6 rounded-lg mr-3 flex items-center justify-center" style={{backgroundColor: getNsbmGreen(0.1)}}>
+                <span className="text-xs font-bold" style={{color: nsbmGreen}}>OP</span>
+              </div>
+              Opponent Score
+            </label>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="relative">
+                <input
+                  type="number"
+                  value={matchData.opponentScore}
+                  onChange={(e) => handleMatchDataChange('opponentScore', e.target.value)}
+                  placeholder="Runs"
+                    className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
+                    style={{
+                      borderColor: colors.borderLight,
+                      backgroundColor: colors.backgroundSecondary,
+                      color: colors.textPrimary
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = nsbmGreen;
+                      e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = colors.borderLight;
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={matchData.opponentWickets}
+                  onChange={(e) => handleMatchDataChange('opponentWickets', e.target.value)}
+                  placeholder="Wickets"
+                    className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
+                    style={{
+                      borderColor: colors.borderLight,
+                      backgroundColor: colors.backgroundSecondary,
+                      color: colors.textPrimary
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = nsbmGreen;
+                      e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = colors.borderLight;
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={matchData.opponentOvers}
+                  onChange={(e) => handleMatchDataChange('opponentOvers', e.target.value)}
+                  placeholder="Overs"
+                    className="w-full px-4 py-4 rounded-xl border-2 transition-all duration-300 focus:outline-none group-hover:shadow-lg"
+                    style={{
+                      borderColor: colors.borderLight,
+                      backgroundColor: colors.backgroundSecondary,
+                      color: colors.textPrimary
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = nsbmGreen;
+                      e.target.style.boxShadow = `0 0 0 4px ${getNsbmGreen(0.1)}`;
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = colors.borderLight;
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                />
+              </div>
+            </div>
           </div>
           <div className="group">
             <label className="text-sm font-semibold mb-3 flex items-center" style={{color: colors.textPrimary}}>

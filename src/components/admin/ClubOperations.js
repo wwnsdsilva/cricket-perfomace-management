@@ -13,7 +13,9 @@ import {
   Filter,
   Download,
   Heart,
-  Save
+  Save,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { NSBM_DESIGN_SYSTEM, getBrandColor } from '../../styles/nsbm-design-system';
 
@@ -37,6 +39,15 @@ const ClubOperations = () => {
   const [editingTraining, setEditingTraining] = useState(null);
   const [attendanceFilter, setAttendanceFilter] = useState('all');
   const [fitnessData, setFitnessData] = useState({});
+  const [injuries, setInjuries] = useState([]);
+  const [showInjuryModal, setShowInjuryModal] = useState(false);
+  const [editingInjury, setEditingInjury] = useState(null);
+  const [injuryForm, setInjuryForm] = useState({
+    playerName: '',
+    injuryType: '',
+    dateReported: '',
+    recoveryDays: ''
+  });
 
   // Fitness management functions
   const handleFitnessInput = (playerId, field, value) => {
@@ -51,6 +62,41 @@ const ClubOperations = () => {
 
   const saveFitnessData = (playerId) => {
     console.log('Saving fitness data for player:', playerId, fitnessData[playerId]);
+  };
+
+  // Injury management functions
+  const handleInjurySubmit = (e) => {
+    e.preventDefault();
+    if (editingInjury) {
+      setInjuries(prev => prev.map(injury => 
+        injury.id === editingInjury.id ? { ...injury, ...injuryForm } : injury
+      ));
+    } else {
+      const newInjury = {
+        id: Date.now(),
+        ...injuryForm,
+        status: 'Recovering'
+      };
+      setInjuries(prev => [...prev, newInjury]);
+    }
+    setShowInjuryModal(false);
+    setEditingInjury(null);
+    setInjuryForm({
+      playerName: '',
+      injuryType: '',
+      dateReported: '',
+      recoveryDays: ''
+    });
+  };
+
+  const handleEditInjury = (injury) => {
+    setEditingInjury(injury);
+    setInjuryForm(injury);
+    setShowInjuryModal(true);
+  };
+
+  const handleDeleteInjury = (injuryId) => {
+    setInjuries(prev => prev.filter(injury => injury.id !== injuryId));
   };
 
   // Sample players data for fitness management
@@ -90,23 +136,20 @@ const ClubOperations = () => {
     title: '',
     date: '',
     time: '',
-    duration: '',
     venue: '',
     coach: '',
-    type: 'Batting',
-    description: '',
-    maxPlayers: 20
+    description: ''
   });
 
   // Sample data
   useEffect(() => {
     // Sample fitness data
     const initialFitnessData = {
-      1: { sprint20m: 3.2, beepTest: 12.5, pushUps: 45, sitUps: 60, status: 'Healthy', lastUpdated: '2024-01-15' },
-      2: { sprint20m: 3.4, beepTest: 11.8, pushUps: 38, sitUps: 55, status: 'Healthy', lastUpdated: '2024-01-14' },
-      3: { sprint20m: 3.1, beepTest: 12.1, pushUps: 42, sitUps: 58, status: 'Recovering', lastUpdated: '2024-01-13' },
-      4: { sprint20m: 3.3, beepTest: 12.0, pushUps: 40, sitUps: 52, status: 'Healthy', lastUpdated: '2024-01-12' },
-      5: { sprint20m: 3.5, beepTest: 11.5, pushUps: 35, sitUps: 48, status: 'Healthy', lastUpdated: '2024-01-11' }
+      1: { sprint20m: 3.2, beepTest: 12.5, status: 'Fit (Excellent)', lastUpdated: '2024-01-15' },
+      2: { sprint20m: 3.4, beepTest: 11.8, status: 'Fit (Excellent)', lastUpdated: '2024-01-14' },
+      3: { sprint20m: 3.1, beepTest: 12.1, status: 'Recovering', lastUpdated: '2024-01-13' },
+      4: { sprint20m: 3.3, beepTest: 12.0, status: 'Fit (Excellent)', lastUpdated: '2024-01-12' },
+      5: { sprint20m: 3.5, beepTest: 11.5, status: 'Fit (Excellent)', lastUpdated: '2024-01-11' }
     };
 
     const sampleMatches = [
@@ -164,12 +207,9 @@ const ClubOperations = () => {
         title: 'Batting Practice Session',
         date: '2024-01-15',
         time: '09:00',
-        duration: '2 hours',
         venue: 'Main Ground',
         coach: 'Coach Johnson',
-        type: 'Batting',
         description: 'Focus on technique and power hitting',
-        maxPlayers: 15,
         status: 'scheduled',
         registeredPlayers: 12,
         attendance: [
@@ -185,12 +225,9 @@ const ClubOperations = () => {
         title: 'Bowling Workshop',
         date: '2024-01-18',
         time: '14:00',
-        duration: '1.5 hours',
         venue: 'Practice Nets',
         coach: 'Coach Smith',
-        type: 'Bowling',
         description: 'Fast bowling techniques and variations',
-        maxPlayers: 10,
         status: 'scheduled',
         registeredPlayers: 8,
         attendance: [
@@ -206,12 +243,9 @@ const ClubOperations = () => {
         title: 'Fielding Drills',
         date: '2024-01-12',
         time: '16:00',
-        duration: '1 hour',
         venue: 'Outfield',
         coach: 'Coach Davis',
-        type: 'Fielding',
         description: 'Ground fielding and catching practice',
-        maxPlayers: 20,
         status: 'completed',
         registeredPlayers: 18,
         attendance: [
@@ -224,10 +258,38 @@ const ClubOperations = () => {
       }
     ];
 
+    const sampleInjuries = [
+      {
+        id: 1,
+        playerName: 'Monil Jason',
+        injuryType: 'Ankle Sprain',
+        dateReported: '2024-01-10',
+        recoveryDays: 14,
+        status: 'Recovering'
+      },
+      {
+        id: 2,
+        playerName: 'Dulaj Bandara',
+        injuryType: 'Shoulder Strain',
+        dateReported: '2024-01-08',
+        recoveryDays: 21,
+        status: 'Recovering'
+      },
+      {
+        id: 3,
+        playerName: 'Suviru Sathnidu',
+        injuryType: 'Knee Injury',
+        dateReported: '2024-01-05',
+        recoveryDays: 30,
+        status: 'Recovering'
+      }
+    ];
+
     setMatches(sampleMatches);
     setEvents(sampleEvents);
     setTrainingSchedule(sampleTrainingSchedule);
     setFitnessData(initialFitnessData);
+    setInjuries(sampleInjuries);
   }, []);
 
   const handleMatchSubmit = (e) => {
@@ -310,12 +372,9 @@ const ClubOperations = () => {
       title: '',
       date: '',
       time: '',
-      duration: '',
       venue: '',
       coach: '',
-      type: 'Batting',
-      description: '',
-      maxPlayers: 20
+      description: ''
     });
   };
 
@@ -391,7 +450,8 @@ const ClubOperations = () => {
     { id: 'events', name: 'Event Scheduling', icon: Calendar },
     { id: 'training-schedule', name: 'Training Schedule', icon: Calendar },
     { id: 'attendance', name: 'Training Attendance', icon: Users },
-    { id: 'fitness', name: 'Player Fitness Management', icon: Heart }
+    { id: 'fitness', name: 'Player Fitness Management', icon: Heart },
+    { id: 'injuries', name: 'Injury Management', icon: AlertTriangle }
   ];
 
   return (
@@ -702,7 +762,7 @@ const ClubOperations = () => {
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
-                          <span className="font-medium">{training.time} ({training.duration})</span>
+                          <span className="font-medium">{training.time}</span>
                         </div>
                         <div className="flex items-center">
                           <MapPin className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
@@ -712,20 +772,16 @@ const ClubOperations = () => {
                           <Users className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
                           <span className="font-medium">{training.coach}</span>
                         </div>
-                        <div className="flex items-center">
-                          <Trophy className="w-4 h-4 mr-2" style={{ color: nsbmGreen }} />
-                          <span className="font-medium">{training.type}</span>
-                        </div>
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-500">
-                            {training.registeredPlayers}/{training.maxPlayers} players
+                            {training.registeredPlayers} players registered
                           </span>
                           <div className="w-16 rounded-full h-2" style={{ backgroundColor: getNsbmGreen(0.2) }}>
                             <div 
                               className="h-2 rounded-full" 
                               style={{ 
-                                width: `${(training.registeredPlayers / training.maxPlayers) * 100}%`,
-                                backgroundColor: nsbmGreen
+                                width: `${Math.min((training.registeredPlayers / 20) * 100, 100)}%`,
+                                backgroundColor: nsbmGreen 
                               }}
                             ></div>
                           </div>
@@ -1134,24 +1190,6 @@ const ClubOperations = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Duration *
-                    </label>
-                    <select
-                      value={trainingForm.duration}
-                      onChange={(e) => setTrainingForm(prev => ({ ...prev, duration: e.target.value }))}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Select Duration</option>
-                      <option value="30 minutes">30 minutes</option>
-                      <option value="1 hour">1 hour</option>
-                      <option value="1.5 hours">1.5 hours</option>
-                      <option value="2 hours">2 hours</option>
-                      <option value="3 hours">3 hours</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Venue *
                     </label>
                     <input
@@ -1170,37 +1208,6 @@ const ClubOperations = () => {
                       type="text"
                       value={trainingForm.coach}
                       onChange={(e) => setTrainingForm(prev => ({ ...prev, coach: e.target.value }))}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Training Type *
-                    </label>
-                    <select
-                      value={trainingForm.type}
-                      onChange={(e) => setTrainingForm(prev => ({ ...prev, type: e.target.value }))}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="Batting">Batting</option>
-                      <option value="Bowling">Bowling</option>
-                      <option value="Fielding">Fielding</option>
-                      <option value="Fitness">Fitness</option>
-                      <option value="General">General</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Max Players *
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="50"
-                      value={trainingForm.maxPlayers}
-                      onChange={(e) => setTrainingForm(prev => ({ ...prev, maxPlayers: parseInt(e.target.value) }))}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -1529,37 +1536,15 @@ const ClubOperations = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Push-ups</label>
-                      <input
-                        type="number"
-                        value={fitnessData[player.id]?.pushUps || ''}
-                        onChange={(e) => handleFitnessInput(player.id, 'pushUps', parseInt(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Sit-ups</label>
-                      <input
-                        type="number"
-                        value={fitnessData[player.id]?.sitUps || ''}
-                        onChange={(e) => handleFitnessInput(player.id, 'sitUps', parseInt(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
 
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                     <select
-                      value={fitnessData[player.id]?.status || 'Healthy'}
+                      value={fitnessData[player.id]?.status || 'Fit (Excellent)'}
                       onChange={(e) => handleFitnessInput(player.id, 'status', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="Healthy">Healthy</option>
+                      <option value="Fit (Excellent)">Fit (Excellent)</option>
                       <option value="Recovering">Recovering</option>
                       <option value="Injured">Injured</option>
                       <option value="Rest">Rest</option>
@@ -1582,6 +1567,190 @@ const ClubOperations = () => {
             ))}
           </div>
           
+        </div>
+      )}
+
+      {/* Injury Management Tab */}
+      {activeTab === 'injuries' && (
+        <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+            <h3 className="text-lg font-medium text-white/70">Injury Management</h3>
+            <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+              <button
+                onClick={() => setShowInjuryModal(true)}
+                className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Injury
+              </button>
+              <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
+                <Download className="w-4 h-4 mr-1" />
+                Export Data
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {injuries.map((injury) => (
+              <div key={injury.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">{injury.playerName}</h4>
+                      <p className="text-sm text-gray-500">{injury.injuryType}</p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditInjury(injury)}
+                      className="p-2 text-gray-400 hover:text-blue-600"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteInjury(injury.id)}
+                      className="p-2 text-gray-400 hover:text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Date Reported:</span>
+                    <span className="font-medium">{new Date(injury.dateReported).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Recovery Days:</span>
+                    <span className="font-medium">{injury.recoveryDays} days</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Status:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      injury.status === 'Recovering' 
+                        ? 'bg-yellow-100 text-yellow-800' 
+                        : injury.status === 'Recovered'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {injury.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {injuries.length === 0 && (
+            <div className="text-center py-12">
+              <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Injuries Reported</h3>
+              <p className="text-gray-500">All players are currently injury-free.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Injury Modal */}
+      {showInjuryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                {editingInjury ? 'Edit Injury' : 'Add New Injury'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowInjuryModal(false);
+                  setEditingInjury(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleInjurySubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Player Name *
+                </label>
+                <input
+                  type="text"
+                  value={injuryForm.playerName}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, playerName: e.target.value }))}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter player name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Injury Type *
+                </label>
+                <input
+                  type="text"
+                  value={injuryForm.injuryType}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, injuryType: e.target.value }))}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Ankle Sprain, Shoulder Strain"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date Reported *
+                </label>
+                <input
+                  type="date"
+                  value={injuryForm.dateReported}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, dateReported: e.target.value }))}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Recovery Days *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={injuryForm.recoveryDays}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, recoveryDays: parseInt(e.target.value) }))}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Expected recovery days"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowInjuryModal(false);
+                    setEditingInjury(null);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                >
+                  {editingInjury ? 'Update Injury' : 'Add Injury'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

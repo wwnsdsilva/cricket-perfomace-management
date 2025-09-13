@@ -6,15 +6,12 @@ import {
   Calendar, 
   Users, 
   Target, 
-  Award,
-  Star,
   Clock,
   MapPin,
   Activity,
   Download,
   FileText,
   BarChart3,
-  Eye,
   Heart,
   Zap,
   Shield,
@@ -25,7 +22,7 @@ import {
   XCircle,
   LogOut
 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { samplePlayerData, performanceTrendData, fitnessTrendData, boundaryBreakdown } from '../data/playerData';
 import { NSBM_DESIGN_SYSTEM, getBrandColor } from '../styles/nsbm-design-system';
 
@@ -41,7 +38,6 @@ const getNsbmGreen = (opacity = 1) => getBrandColor('brandPrimary', opacity);
 
 const PlayerDashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   // Event carousel state
@@ -98,12 +94,6 @@ const PlayerDashboard = () => {
     return () => clearInterval(id);
   }, [sampleEvents.length]);
 
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
 
   const getResultColor = (outcome) => {
     switch (outcome) {
@@ -138,6 +128,7 @@ const PlayerDashboard = () => {
       ['Economy Rate', playerData.currentSeason.bowling.economy],
       ['Catches', playerData.currentSeason.fielding.catches],
       ['Run Outs', playerData.currentSeason.fielding.runOuts],
+      ['Stumpings', playerData.currentSeason.fielding.stumpings],
       ['Sprint 20m', playerData.fitness.sprint20m.current],
       ['Beep Test', playerData.fitness.beepTest.current]
     ].map(row => row.join(',')).join('\n');
@@ -171,11 +162,11 @@ const PlayerDashboard = () => {
       
       {/* Header */}
       <header className="relative shadow-sm border-b" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight }}>
-        <div className="w-full mx-auto px-4 sm:px-6 xl:px-12">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2" style={{borderColor: nsbmGreen}}>
+        <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-12">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2" style={{borderColor: nsbmGreen}}>
                 <img 
                   src={playerData.photo} 
                   alt={playerData.name}
@@ -183,15 +174,15 @@ const PlayerDashboard = () => {
                 />
                 </div>
               </div>
-              <div>
-                <h1 className="text-xl font-semibold" style={{color: colors.textPrimary}}>{playerData.name}</h1>
-                <p className="text-sm" style={{color: colors.textSecondary}}>{playerData.role}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-sm sm:text-lg lg:text-xl font-semibold truncate" style={{color: colors.textPrimary}}>{playerData.name}</h1>
+                <p className="text-xs sm:text-sm truncate" style={{color: colors.textSecondary}}>{playerData.role}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
               <button
                 onClick={exportToCSV}
-                className="inline-flex items-center px-3 py-2 border rounded-lg text-sm font-medium transition-colors"
+                className="hidden sm:inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg text-xs sm:text-sm font-medium transition-colors"
                 style={{
                   color: colors.textPrimary,
                   backgroundColor: colors.backgroundPrimary,
@@ -204,12 +195,13 @@ const PlayerDashboard = () => {
                   e.target.style.backgroundColor = colors.backgroundPrimary;
                 }}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
+                <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden lg:inline">Export CSV</span>
+                <span className="lg:hidden">CSV</span>
               </button>
               <button
                 onClick={exportToPDF}
-                className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors"
+                className="hidden sm:inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium text-white transition-colors"
                 style={{backgroundColor: nsbmGreen}}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = getNsbmGreen(0.8);
@@ -218,12 +210,13 @@ const PlayerDashboard = () => {
                   e.target.style.backgroundColor = nsbmGreen;
                 }}
               >
-                <FileText className="w-4 h-4 mr-2" />
-                Export PDF
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden lg:inline">Export PDF</span>
+                <span className="lg:hidden">PDF</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border rounded-lg text-sm font-medium transition-colors"
+                className="inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg text-xs sm:text-sm font-medium transition-colors"
                 style={{
                   color: colors.textPrimary,
                   backgroundColor: colors.backgroundPrimary,
@@ -236,8 +229,8 @@ const PlayerDashboard = () => {
                   e.target.style.backgroundColor = colors.backgroundPrimary;
                 }}
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -246,15 +239,15 @@ const PlayerDashboard = () => {
 
       {/* Navigation Tabs */}
       <div className="border-b" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight }}>
-        <div className="w-full mx-auto px-4 sm:px-6 xl:px-12">
-          <nav className="flex space-x-8">
+        <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-12">
+          <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 ${
+                  className={`py-3 sm:py-4 px-2 sm:px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'text-gray-900 font-bold'
                       : 'text-gray-700 hover:text-gray-900'
@@ -264,8 +257,9 @@ const PlayerDashboard = () => {
                     backgroundColor: activeTab === tab.id ? getNsbmGreen(0.1) : 'transparent'
                   }}
                 >
-                  <Icon className="w-4 h-4 mr-2" style={{color: activeTab === tab.id ? nsbmGreen : colors.textSecondary}} />
-                  {tab.name}
+                  <Icon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" style={{color: activeTab === tab.id ? nsbmGreen : colors.textSecondary}} />
+                  <span className="hidden sm:inline">{tab.name}</span>
+                  <span className="sm:hidden">{tab.name.split(' ')[0]}</span>
                 </button>
               );
             })}
@@ -274,118 +268,189 @@ const PlayerDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <main className="w-full mx-auto px-4 sm:px-6 xl:px-12 py-8">
+      <main className="w-full mx-auto px-2 sm:px-4 lg:px-6 xl:px-12 py-4 sm:py-6 lg:py-8">
         {/* Home Tab */}
         {activeTab === 'home' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Welcome Section */}
             <div 
-              className="rounded-xl p-6 text-white"
+              className="rounded-xl p-4 sm:p-6 text-white"
               style={{
                 background: `linear-gradient(135deg, ${nsbmGreen}, ${getNsbmGreen(0.8)})`,
                 boxShadow: `0 4px 12px ${getNsbmGreen(0.3)}`
               }}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                <div className="flex-1">
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-1 sm:mb-2">
                     Welcome back, {playerData.name}! 👋
                   </h2>
-                  <p className="text-white/90">
+                  <p className="text-sm sm:text-base text-white/90">
                     Here's your latest performance and upcoming activities
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-white/80">Current Time</p>
-                  <p className="text-lg font-semibold">
+                <div className="text-left sm:text-right">
+                  <p className="text-xs sm:text-sm text-white/80">Current Time</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold">
                     {new Date().toLocaleTimeString()}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Club Events */}
-            <div 
-              className="rounded-xl shadow-sm border p-6" 
-              style={{ 
-                backgroundColor: colors.backgroundPrimary, 
-                borderColor: colors.borderLight,
-                boxShadow: shadows.sm
-              }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5" style={{ color: nsbmGreen }} />
-                  <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Club Events</h3>
-                </div>
-                <div className="flex space-x-1">
-                  <button 
-                    onClick={prevEvent} 
-                    className="p-1 rounded-full transition-colors" 
-                    style={{color: colors.textSecondary}}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.backgroundSecondary}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                    aria-label="Previous event"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={nextEvent} 
-                    className="p-1 rounded-full transition-colors" 
-                    style={{color: colors.textSecondary}}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.backgroundSecondary}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                    aria-label="Next event"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="relative overflow-hidden rounded-lg">
-                <div className="relative h-48">
-                  <img 
-                    src={sampleEvents[eventIndex].image}
-                    alt={sampleEvents[eventIndex].name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
-                    <div className="p-4 text-white w-full">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-bold text-lg mb-1">{sampleEvents[eventIndex].name}</h4>
-                          <div className="flex items-center space-x-2 text-sm">
-                            <Calendar className="w-4 h-4" />
-                            <span>{new Date(sampleEvents[eventIndex].date).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                </div>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              {/* Club Events - Square Shape */}
+              <div className="lg:col-span-2">
+                <div 
+                  className="rounded-xl shadow-sm border p-6 h-full flex flex-col" 
+                  style={{ 
+                    backgroundColor: colors.backgroundPrimary, 
+                    borderColor: colors.borderLight,
+                    boxShadow: shadows.sm
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-5 h-5" style={{ color: nsbmGreen }} />
+                      <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Club Events</h3>
+                    </div>
+                    <div className="flex space-x-1">
+                      <button 
+                        onClick={prevEvent} 
+                        className="p-1 rounded-full transition-colors" 
+                        style={{color: colors.textSecondary}}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = colors.backgroundSecondary}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        aria-label="Previous event"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={nextEvent} 
+                        className="p-1 rounded-full transition-colors" 
+                        style={{color: colors.textSecondary}}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = colors.backgroundSecondary}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        aria-label="Next event"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  {sampleEvents[eventIndex].featured && (
-                    <div className="absolute top-2 right-2">
-                      <span 
-                        className="text-white text-xs px-2 py-1 rounded-full"
-                        style={{backgroundColor: nsbmGold}}
-                      >
-                        Featured
-                      </span>
+                  
+                  <div className="relative overflow-hidden rounded-lg flex-1">
+                    <div className="relative h-full">
+                      <img 
+                        src={sampleEvents[eventIndex].image}
+                        alt={sampleEvents[eventIndex].name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                        <div className="p-4 text-white w-full">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-bold text-lg mb-1">{sampleEvents[eventIndex].name}</h4>
+                              <div className="flex items-center space-x-2 text-sm">
+                                <Calendar className="w-4 h-4" />
+                                <span>{new Date(sampleEvents[eventIndex].date).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {sampleEvents[eventIndex].featured && (
+                        <div className="absolute top-2 right-2">
+                          <span 
+                            className="text-white text-xs px-2 py-1 rounded-full"
+                            style={{backgroundColor: nsbmGold}}
+                          >
+                            Featured
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="flex justify-center mt-3 space-x-1">
+                    {sampleEvents.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setEventIndex(i)}
+                        className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                          i === eventIndex ? 'bg-blue-600 shadow-sm' : 'bg-gray-300'
+                        }`}
+                        aria-label={`Go to event ${i + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex justify-center mt-3 space-x-1">
-                {sampleEvents.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setEventIndex(i)}
-                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                      i === eventIndex ? 'bg-blue-600 shadow-sm' : 'bg-gray-300'
-                    }`}
-                    aria-label={`Go to event ${i + 1}`}
-                  />
-                ))}
+
+              {/* Right Side - Vertical Cards */}
+              <div className="space-y-6 h-full flex flex-col">
+                {/* Batting Average Card */}
+                <div 
+                  className="rounded-xl shadow-sm border p-6" 
+                  style={{ 
+                    backgroundColor: colors.backgroundPrimary, 
+                    borderColor: colors.borderLight,
+                    boxShadow: shadows.sm
+                  }}
+                >
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Trophy className="w-5 h-5" style={{color: nsbmGold}} />
+                    <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Average</h3>
+                  </div>
+                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div>
+                  <div className="text-sm" style={{color: colors.textSecondary}}>Current Season</div>
+                  <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    +2.3 from last season
+                  </div>
+                </div>
+
+                {/* Bowling Average Card */}
+                <div 
+                  className="rounded-xl shadow-sm border p-6" 
+                  style={{ 
+                    backgroundColor: colors.backgroundPrimary, 
+                    borderColor: colors.borderLight,
+                    boxShadow: shadows.sm
+                  }}
+                >
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Target className="w-5 h-5" style={{color: colors.error}} />
+                    <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Bowling Average</h3>
+                  </div>
+                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div>
+                  <div className="text-sm" style={{color: colors.textSecondary}}>Current Season</div>
+                  <div className="mt-2 flex items-center text-sm" style={{color: colors.error}}>
+                    <TrendingUp className="w-4 h-4 mr-1 rotate-180" />
+                    +1.2 from last season
+                  </div>
+                </div>
+
+                {/* Fitness Level Card */}
+                <div 
+                  className="rounded-xl shadow-sm border p-6" 
+                  style={{ 
+                    backgroundColor: colors.backgroundPrimary, 
+                    borderColor: colors.borderLight,
+                    boxShadow: shadows.sm
+                  }}
+                >
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Heart className="w-5 h-5" style={{color: nsbmGreen}} />
+                    <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Fitness Level</h3>
+                  </div>
+                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.beepTest.level}</div>
+                  <div className="text-sm" style={{color: colors.textSecondary}}>Beep Test: {playerData.fitness.beepTest.current}</div>
+                  <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    Improving fitness
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -402,29 +467,25 @@ const PlayerDashboard = () => {
                 <Activity className="w-5 h-5" style={{ color: nsbmGreen }} />
                 <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Last 3 Match Results</h3>
               </div>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {playerData.recentResults.map((match) => (
                   <div 
                     key={match.id} 
-                    className="flex items-center justify-between p-4 rounded-lg"
+                    className="flex flex-col p-4 rounded-lg"
                     style={{backgroundColor: colors.backgroundSecondary}}
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="font-medium" style={{color: colors.textPrimary}}>vs {match.opponent}</h4>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.outcome)}`}>
-                          {match.result}
-                        </span>
-                      </div>
-                      <p className="text-sm mb-1" style={{color: colors.textSecondary}}>{match.score}</p>
-                      <div className="flex items-center space-x-4 text-xs" style={{color: colors.textTertiary}}>
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{new Date(match.date).toLocaleDateString()}</span>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium" style={{color: colors.textPrimary}}>vs {match.opponent}</h4>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.outcome)}`}>
+                        {match.result}
+                      </span>
                     </div>
-                    <div className="text-right">
+                    <p className="text-sm mb-2" style={{color: colors.textSecondary}}>{match.score}</p>
+                    <div className="flex items-center space-x-1 text-xs mb-3" style={{color: colors.textTertiary}}>
+                      <Calendar className="w-3 h-3" />
+                      <span>{new Date(match.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="mt-auto">
                       <p className="text-sm font-medium" style={{color: colors.textPrimary}}>My Performance</p>
                       <p className="text-xs" style={{color: colors.textSecondary}}>{match.myPerformance}</p>
                     </div>
@@ -433,178 +494,110 @@ const PlayerDashboard = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div 
-                className="rounded-xl shadow-sm border p-6" 
-                style={{ 
-                  backgroundColor: colors.backgroundPrimary, 
-                  borderColor: colors.borderLight,
-                  boxShadow: shadows.sm
-                }}
-              >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Trophy className="w-5 h-5" style={{color: nsbmGold}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Average</h3>
-                </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>Current Season</div>
-              </div>
-              <div 
-                className="rounded-xl shadow-sm border p-6" 
-                style={{ 
-                  backgroundColor: colors.backgroundPrimary, 
-                  borderColor: colors.borderLight,
-                  boxShadow: shadows.sm
-                }}
-              >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Target className="w-5 h-5" style={{color: colors.error}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Bowling Average</h3>
-                </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>Current Season</div>
-              </div>
-              <div 
-                className="rounded-xl shadow-sm border p-6" 
-                style={{ 
-                  backgroundColor: colors.backgroundPrimary, 
-                  borderColor: colors.borderLight,
-                  boxShadow: shadows.sm
-                }}
-              >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Heart className="w-5 h-5" style={{color: nsbmGreen}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Fitness Level</h3>
-                </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.beepTest.level}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>Beep Test: {playerData.fitness.beepTest.current}</div>
-              </div>
-            </div>
           </div>
         )}
 
         {/* Performance Tab */}
         {activeTab === 'performance' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Performance Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div 
-                className="rounded-xl shadow-sm border p-6" 
+                className="rounded-xl shadow-sm border p-4 sm:p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
                   borderColor: colors.borderLight,
                   boxShadow: shadows.sm
                 }}
               >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Trophy className="w-5 h-5" style={{color: nsbmGold}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Average</h3>
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmGold}} />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Average</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>from {playerData.currentSeason.batting.matches} matches</div>
-                <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +2.3 from last season
-                </div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>from {playerData.currentSeason.batting.matches} matches</div>
               </div>
 
               <div 
-                className="rounded-xl shadow-sm border p-6" 
+                className="rounded-xl shadow-sm border p-4 sm:p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
                   borderColor: colors.borderLight,
                   boxShadow: shadows.sm
                 }}
               >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Zap className="w-5 h-5" style={{color: nsbmBlue}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Strike Rate</h3>
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmBlue}} />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Strike Rate</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.strikeRate}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>runs per 100 balls</div>
-                <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +5.2 from last season
-                </div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.strikeRate}</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>runs per 100 balls</div>
               </div>
 
               <div 
-                className="rounded-xl shadow-sm border p-6" 
+                className="rounded-xl shadow-sm border p-4 sm:p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
                   borderColor: colors.borderLight,
                   boxShadow: shadows.sm
                 }}
               >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Target className="w-5 h-5" style={{color: colors.error}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Bowling Average</h3>
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5" style={{color: colors.error}} />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Bowling Average</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>runs per wicket</div>
-                  <div className="mt-2 flex items-center text-sm" style={{color: colors.error}}>
-                  <TrendingUp className="w-4 h-4 mr-1 rotate-180" />
-                  +1.2 from last season
-                </div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>runs per wicket</div>
               </div>
 
               <div 
-                className="rounded-xl shadow-sm border p-6" 
+                className="rounded-xl shadow-sm border p-4 sm:p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
                   borderColor: colors.borderLight,
                   boxShadow: shadows.sm
                 }}
               >
-                <div className="flex items-center space-x-2 mb-4">
-                  <BarChart3 className="w-5 h-5" style={{color: nsbmGreen}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Economy Rate</h3>
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmGreen}} />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Economy Rate</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.economy}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>runs per over</div>
-                  <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
-                  <TrendingUp className="w-4 h-4 mr-1 rotate-180" />
-                  -0.3 from last season
-                </div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.economy}</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>runs per over</div>
               </div>
 
               <div 
-                className="rounded-xl shadow-sm border p-6" 
+                className="rounded-xl shadow-sm border p-4 sm:p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
                   borderColor: colors.borderLight,
                   boxShadow: shadows.sm
                 }}
               >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Shield className="w-5 h-5" style={{color: nsbmBlue}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Boundary %</h3>
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmBlue}} />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Boundary %</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.boundaryPercentage}%</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>of total runs</div>
-                  <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +1.8% from last season
-                </div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.boundaryPercentage}%</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>of total runs</div>
               </div>
 
               <div 
-                className="rounded-xl shadow-sm border p-6" 
+                className="rounded-xl shadow-sm border p-4 sm:p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
                   borderColor: colors.borderLight,
                   boxShadow: shadows.sm
                 }}
               >
-                <div className="flex items-center space-x-2 mb-4">
-                  <Users className="w-5 h-5" style={{color: nsbmGreen}} />
-                  <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Fielding</h3>
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmGreen}} />
+                  <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Fielding</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.fielding.catches + playerData.currentSeason.fielding.runOuts}</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>catches + run outs</div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.fielding.catches + playerData.currentSeason.fielding.runOuts + playerData.currentSeason.fielding.stumpings}</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>catches + run outs + stumpings</div>
                   <div className="mt-2 text-sm" style={{color: colors.textSecondary}}>
-                  {playerData.currentSeason.fielding.catches} catches, {playerData.currentSeason.fielding.runOuts} run outs
+                  {playerData.currentSeason.fielding.catches} catches, {playerData.currentSeason.fielding.runOuts} run outs, {playerData.currentSeason.fielding.stumpings} stumpings
                 </div>
               </div>
             </div>
@@ -805,61 +798,68 @@ const PlayerDashboard = () => {
 
         {/* Schedule Tab */}
         {activeTab === 'schedule' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
 
             {/* Upcoming Matches */}
             <div 
-              className="rounded-xl shadow-sm border p-6" 
+              className="rounded-xl shadow-sm border p-4 sm:p-6" 
               style={{ 
                 backgroundColor: colors.backgroundPrimary, 
                 borderColor: colors.borderLight,
                 boxShadow: shadows.sm
               }}
             >
-              <div className="flex items-center space-x-2 mb-4">
-                <Trophy className="w-5 h-5" style={{ color: nsbmGreen }} />
-                <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Upcoming Matches</h3>
+              <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                <Trophy className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: nsbmGreen }} />
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>Upcoming Matches</h3>
               </div>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {playerData.upcomingMatches.map((match) => (
                   <div 
                     key={match.id} 
-                    className="p-4 rounded-lg border" 
+                    className="p-3 sm:p-4 rounded-lg border relative overflow-hidden" 
                     style={{ 
                       backgroundColor: getNsbmGreen(0.05), 
                       borderColor: colors.borderLight 
                     }}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium" style={{ color: colors.textPrimary }}>vs {match.opponent}</h4>
+                    {/* Faded Background Image */}
+                    <div 
+                      className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
+                      style={{
+                        backgroundImage: 'url(/images/logoNSBM.jpg)'
+                      }}
+                    />
+                    {/* Content */}
+                    <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>vs {match.opponent}</h4>
                       <span 
-                        className="text-xs px-2 py-1 rounded-full" 
+                        className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" 
                         style={{ backgroundColor: nsbmGreen, color: 'white' }}
                       >
                         {match.type}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-4 text-sm" style={{ color: colors.textSecondary }}>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-3 h-3" />
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm sm:text-base mb-2" style={{ color: colors.textSecondary }}>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>{new Date(match.date).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>{match.time}</span>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-1 mt-2 text-xs" style={{ color: colors.textTertiary }}>
-                      <MapPin className="w-3 h-3" />
-                      <span>{match.venue}</span>
+                    <div className="flex items-center space-x-2 mb-2 sm:mb-3 text-xs sm:text-sm" style={{ color: colors.textTertiary }}>
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="truncate">{match.venue}</span>
                     </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
+                    <div className="mt-3 sm:mt-4 flex items-center justify-center">
+                      <span className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
                         {match.status}
                       </span>
-                      <button className="text-xs font-medium" style={{ color: nsbmBlue }}>
-                        View Details
-                      </button>
+                    </div>
                     </div>
                   </div>
                 ))}
@@ -867,39 +867,44 @@ const PlayerDashboard = () => {
             </div>
 
             {/* Training Sessions */}
-            <div className="rounded-xl shadow-sm border p-6" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight }}>
-              <div className="flex items-center space-x-2 mb-4">
-                <Users className="w-5 h-5" style={{ color: nsbmGreen }} />
-                <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Training Sessions</h3>
+            <div className="rounded-xl shadow-sm border p-4 sm:p-6" style={{ backgroundColor: colors.backgroundPrimary, borderColor: colors.borderLight }}>
+              <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: nsbmGreen }} />
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>Training Sessions</h3>
               </div>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {playerData.trainingSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: colors.backgroundSecondary }}>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="font-medium" style={{ color: colors.textPrimary }}>{session.type}</h4>
-                        <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
-                          {session.attendance}
-                        </span>
+                  <div key={session.id} className="p-3 sm:p-4 rounded-lg border relative overflow-hidden" style={{ backgroundColor: colors.backgroundSecondary, borderColor: colors.borderLight }}>
+                    {/* Faded Background Image */}
+                    <div 
+                      className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
+                      style={{
+                        backgroundImage: 'url(/images/logoNSBM.jpg)'
+                      }}
+                    />
+                    {/* Content */}
+                    <div className="relative z-10">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>{session.type}</h4>
+                      <span className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
+                        {session.attendance}
+                      </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm sm:text-base mb-2 sm:mb-3" style={{ color: colors.textSecondary }}>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{new Date(session.date).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex items-center space-x-4 text-sm" style={{ color: colors.textSecondary }}>
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{new Date(session.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{session.time}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Users className="w-3 h-3" />
-                          <span>{session.coach}</span>
-                        </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>{session.time}</span>
                       </div>
                     </div>
-                    <button className="text-sm font-medium" style={{ color: nsbmBlue }}>
-                      View Details
-                    </button>
+                    <div className="flex items-center space-x-2 text-xs sm:text-sm mb-2 sm:mb-3" style={{ color: colors.textTertiary }}>
+                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="truncate">{session.coach}</span>
+                    </div>
+                    </div>
                   </div>
                 ))}
               </div>
