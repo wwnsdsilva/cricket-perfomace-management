@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Trophy, Shield, Users, User, Info, Star, Award, Target, BarChart3 } from 'lucide-react';
 import { sampleUsers } from '../data/sampleData';
+import AuthService from '../services/AuthService';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    role: 'Admin'
+    user_role: 'ADMIN',
+    email: 'admin@gmail.com'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -16,6 +18,32 @@ const Login = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(name, value);
+
+    if(name === "user_role") {
+      if(value == "ADMIN") {
+        setFormData((prev)=>({
+          ...prev,
+          email: "admin@gmail.com"
+        }))
+      } else if (value == "MIC") {
+        setFormData((prev)=>({
+          ...prev,
+          email: "mic@gmail.com"
+        }))
+      } else if (value == "PLAYER") {
+        setFormData((prev)=>({
+          ...prev,
+          email: "player@gmail.com"
+        }))
+      } else if (value == "NORMAL") {
+        setFormData((prev)=>({
+          ...prev,
+          email: "normal@gmail.com"
+        }))
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -32,38 +60,83 @@ const Login = () => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Find user in sample data
+      /* // Find user in sample data
       const user = sampleUsers.find(
         u => u.username === formData.username && 
         u.password === formData.password && 
-        u.role === formData.role
-      );
+        u.user_role === formData.user_role
+      ); */
 
-      if (user) {
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('authToken', 'sample-jwt-token-' + user.id);
+      // if (user) {
+      //   // Store user data in localStorage
+      //   localStorage.setItem('user', JSON.stringify(user));
+      //   localStorage.setItem('authToken', 'sample-jwt-token-' + user.id);
         
-        // Navigate based on role
-        switch (user.role) {
-          case 'Admin':
-            navigate('/admin/dashboard');
-            break;
-          case 'MIC':
-            navigate('/mic/dashboard');
-            break;
-          case 'Player':
-            navigate('/player/dashboard');
-            break;
-          case 'Normal':
-            navigate('/club');
-            break;
-          default:
-            navigate('/dashboard');
+        // // Navigate based on user_role
+        // switch (user.user_role) {
+        //   case 'Admin':
+        //     navigate('/admin/dashboard');
+        //     break;
+        //   case 'MIC':
+        //     navigate('/mic/dashboard');
+        //     break;
+        //   case 'Player':
+        //     navigate('/player/dashboard');
+        //     break;
+        //   case 'Normal':
+        //     navigate('/club');
+        //     break;
+        //   default:
+        //     navigate('/dashboard');
+        // }
+      // } else {
+      //   setError('Invalid credentials. Please check your username, password, and user_role.');
+      // }
+
+      let res = await AuthService.login(formData);
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data.access_token);
+          localStorage.setItem(
+            "access_token",
+            JSON.stringify(res.data.data.access_token)
+          );
+          localStorage.setItem(
+            "user_id",
+            JSON.stringify(res.data.data.user_id)
+          );
+          localStorage.setItem(
+            "user_role",
+            JSON.stringify(res.data.data.user_role)
+          );
+
+          const user_role = res.data.data.user_role?.toUpperCase();
+          console.log(user_role)
+          // Navigate based on user_role
+          switch (user_role) {
+            case 'ADMIN':
+              console.log("navigate to admin dashboard");
+              navigate('/admin/dashboard');
+              break;
+            case 'MIC':
+              navigate('/mic/dashboard');
+              break;
+            case 'PLAYER':
+              navigate('/player/dashboard');
+              break;
+            case 'NORMAL':
+              navigate('/club');
+              break;
+            default:
+              navigate('/dashboard');
+          }
         }
       } else {
-        setError('Invalid credentials. Please check your username, password, and role.');
+        setError('Invalid credentials. Please check your username, password, and user_role.');
       }
+
     } catch (err) {
       setError('Login failed. Please try again.');
     } finally {
@@ -71,30 +144,30 @@ const Login = () => {
     }
   };
 
-  const getRoleIcon = (role) => {
-    switch (role) {
-      case 'Admin':
+  const getRoleIcon = (user_role) => {
+    switch (user_role) {
+      case 'ADMIN':
         return <Shield className="w-5 h-5" />;
       case 'MIC':
         return <Users className="w-5 h-5" />;
-      case 'Player':
+      case 'PLAYER':
         return <User className="w-5 h-5" />;
-      case 'Normal':
+      case 'NORMAL':
         return <Info className="w-5 h-5" />;
       default:
         return <User className="w-5 h-5" />;
     }
   };
 
-  const getRoleDescription = (role) => {
-    switch (role) {
-      case 'Admin':
+  const getRoleDescription = (user_role) => {
+    switch (user_role) {
+      case 'ADMIN':
         return 'Full access to player data, matches, and reports';
       case 'MIC':
         return 'Access to performance tracking and match records';
-      case 'Player':
+      case 'PLAYER':
         return 'View personal statistics and training schedule';
-      case 'Normal':
+      case 'NORMAL':
         return 'Public, read-only access to general club information';
       default:
         return '';
@@ -234,21 +307,21 @@ const Login = () => {
 
             {/* Role Selection */}
             <div>
-                  <label htmlFor="role" className="block text-xs sm:text-sm font-semibold text-white mb-1 sm:mb-2">
+                  <label htmlFor="user_role" className="block text-xs sm:text-sm font-semibold text-white mb-1 sm:mb-2">
                 Role
               </label>
                   <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
+                    id="user_role"
+                    name="user_role"
+                    value={formData.user_role}
                     onChange={handleInputChange}
                     className="w-full px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base bg-white/20 border border-white/20 rounded-lg sm:rounded-xl focus:ring-1 focus:ring-green-400/50 focus:border-green-400/50 transition-all duration-300 text-white backdrop-blur-sm"
                     required
                   >
-                    <option value="Admin" className="bg-gray-800 text-white">Admin</option>
+                    <option value="ADMIN" className="bg-gray-800 text-white">Admin</option>
                     <option value="MIC" className="bg-gray-800 text-white">MIC (Manager in Charge)</option>
-                    <option value="Player" className="bg-gray-800 text-white">Player</option>
-                    <option value="Normal" className="bg-gray-800 text-white">Normal User</option>
+                    <option value="PLAYER" className="bg-gray-800 text-white">Player</option>
+                    <option value="NORMAL" className="bg-gray-800 text-white">Normal User</option>
               </select>
             </div>
 
@@ -256,11 +329,11 @@ const Login = () => {
                 <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm">
                   <div className="flex items-center space-x-2 sm:space-x-3 mb-1 sm:mb-2">
                     <div className="p-1.5 sm:p-2 rounded-lg bg-white/20">
-                {getRoleIcon(formData.role)}
+                {getRoleIcon(formData.user_role)}
                     </div>
-                    <span className="text-xs sm:text-sm font-semibold text-white">{formData.role}</span>
+                    <span className="text-xs sm:text-sm font-semibold text-white">{formData.user_role}</span>
               </div>
-                  <p className="text-xs sm:text-sm text-white/80">{getRoleDescription(formData.role)}</p>
+                  <p className="text-xs sm:text-sm text-white/80">{getRoleDescription(formData.user_role)}</p>
             </div>
 
             {/* Submit Button */}
@@ -289,7 +362,7 @@ const Login = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/20">
                     <div className="font-semibold text-white text-xs">Admin</div>
-                    <div className="text-white/70 text-xs">admin / admin123</div>
+                    <div className="text-white/70 text-xs">admin002 / admin002xx</div>
                   </div>
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/20">
                     <div className="font-semibold text-white text-xs">MIC</div>

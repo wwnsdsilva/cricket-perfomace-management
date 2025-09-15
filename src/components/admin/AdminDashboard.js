@@ -12,6 +12,11 @@ import {
 } from 'lucide-react';
 import { NSBM_DESIGN_SYSTEM } from '../../styles/nsbm-design-system';
 import { NSBMCard, NSBMBadge, NSBMKPITile, NSBMSectionHeader, NSBMButton } from '../ui/NSBMComponents';
+import axios from '../../axios';
+import PlayerService from '../../services/PlayerService';
+import SessionService from '../../services/SessionService';
+import InjuryService from '../../services/InjuryService';
+import EventService from '../../services/EventService';
 
 // NSBM Brand Colors from Design System
 const { colors } = NSBM_DESIGN_SYSTEM;
@@ -24,17 +29,16 @@ const nsbmGold = colors.brandAccent;
 const AdminDashboard = () => {
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
 
-  // Audit-friendly data with high contrast
-  const auditData = {
-    totalPlayers: 45,
-    activeSessions: 12,
-    injuries: 3,
-    attendance: 87.5
-  };
+  const [auditData, setAuditData] = useState({
+    totalPlayers: 0,
+    activeSessions: 0,
+    injuries: 0,
+    attendance: 0,
+  });
+
+  const [clubEvents, setClubEvents] = useState([]);
 
   // Sample data
-
-
   const samplePlayers = [
     { id: 1, name: 'Monil Jason', runs: 1250, wickets: 5, matches: 15, average: 45.2, photo: '/images/gallery/players/maniya.jpg' },
     { id: 2, name: 'Dulaj Bandara', runs: 890, wickets: 28, matches: 12, average: 32.1, photo: '/images/gallery/players/dulaj.jpg' },
@@ -101,34 +105,34 @@ const AdminDashboard = () => {
     }
   ];
 
-  const clubEvents = [
+  const clubEventss = [
     {
       id: 1,
-      name: 'Annual Cricket Awards Night',
-      date: '2024-02-15',
-      image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
-      featured: true
+      event_title: 'Annual Cricket Awards Night',
+      date_time: '2024-02-15T14:30:00',
+      image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
+      is_featured: true
     },
     {
       id: 2,
-      name: 'Training Camp',
-      date: '2024-03-10',
-      image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop',
-      featured: false
+      event_title: 'Training Camp',
+      date_time: '2024-03-10',
+      image_url: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop',
+      is_featured: false
     },
     {
       id: 3,
-      name: 'Fundraising Event',
-      date: '2024-03-20',
-      image: 'https://images.unsplash.com/photo-1519167758481-83f29b4a0a0e?w=400&h=200&fit=crop',
-      featured: false
+      event_title: 'Fundraising Event',
+      date_time: '2024-03-20',
+      image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
+      is_featured: true
     },
     {
       id: 4,
-      name: 'Championship Victory',
-      date: '2024-02-15',
-      image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop',
-      featured: false
+      event_title: 'Championship Victory',
+      date_time: '2024-02-15',
+      image_url: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop',
+      is_featured: false
     }
   ];
 
@@ -185,6 +189,81 @@ const AdminDashboard = () => {
     return () => clearInterval(interval);
   }, [clubEvents.length]);
 
+  useEffect(() => {
+    getPlayersCount();
+    getSessionsCount();
+    getInjuriesCount();
+    getClubEvents();
+  }, []);
+
+
+  const getPlayersCount = async () => {
+    let res = await PlayerService.getCount();
+    console.log(res);
+
+    if (res.status == 200) {
+      if (res.data.data != 0) {
+        console.log(res.data.data);
+        setAuditData((prev) => ({
+          ...prev,
+          totalPlayers: res.data.data,
+        }));
+      }
+    }
+  };
+
+  const getSessionsCount = async () => {
+    let res = await SessionService.getCount("ONGOING");
+    console.log(res);
+
+    if (res.status == 200) {
+      if (res.data.data != 0) {
+        console.log(res.data.data);
+        setAuditData((prev) => ({
+          ...prev,
+          activeSessions: res.data.data,
+        }));
+      }
+    }
+  };
+
+  const getInjuriesCount = async () => {
+    let res = await InjuryService.getCount();
+    console.log(res);
+
+    if (res.status == 200) {
+      if (res.data.data != 0) {
+        console.log(res.data.data);
+        setAuditData((prev) => ({
+          ...prev,
+          injuries: res.data.data,
+        }));
+      }
+    }
+  };
+  
+  const getClubEvents = async () => {
+    try {
+      const res = await EventService.getAll();
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setClubEvents(res.data.data); // This updates the state
+        } else {
+          console.log("No club events found");
+          setClubEvents([]); // Clear state if no events
+        }
+      } else {
+        console.log("Failed to fetch events");
+      }
+    } catch (error) {
+      console.error("Error fetching club events:", error);
+    }
+  };
+
   const topBatsmen = samplePlayers
     .sort((a, b) => b.runs - a.runs)
     .slice(0, 5);
@@ -218,33 +297,37 @@ const AdminDashboard = () => {
       
       <div className="relative w-full max-w-none mx-auto px-4 sm:px-6 xl:px-12 py-8 space-y-8">
 
+        {/* -------------Summary----------- */}
+
         {/* High-Contrast KPI Row - Audit-Friendly */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <NSBMKPITile
-            title="Total Players"
-            value={auditData.totalPlayers}
-            trend={2.3}
-            icon={Users}
-            className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
-            style={{borderLeftColor: nsbmGreen, backgroundColor: `${nsbmGreen}10`}}
-          />
-          <NSBMKPITile
-            title="Active Sessions"
-            value={auditData.activeSessions}
-            trend={-1.2}
-            icon={Activity}
-            className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
-            style={{borderLeftColor: nsbmBlue, backgroundColor: `${nsbmBlue}10`}}
-          />
-          <NSBMKPITile
-            title="Injuries"
-            value={auditData.injuries}
-            trend={-0.5}
-            icon={Target}
-            className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
-            style={{borderLeftColor: colors.error, backgroundColor: `${colors.error}10`}}
-          />
-      </div>
+            <NSBMKPITile
+              title="Total Players"
+              value={auditData.totalPlayers}
+              trend={2.3}
+              icon={Users}
+              className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
+              style={{borderLeftColor: nsbmGreen, backgroundColor: `${nsbmGreen}10`}}
+            />
+            <NSBMKPITile
+              title="Active Sessions"
+              value={auditData.activeSessions}
+              trend={-1.2}
+              icon={Activity}
+              className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
+              style={{borderLeftColor: nsbmBlue, backgroundColor: `${nsbmBlue}10`}}
+            />
+            <NSBMKPITile
+              title="Injuries"
+              value={auditData.injuries}
+              trend={-0.5}
+              icon={Target}
+              className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
+              style={{borderLeftColor: colors.error, backgroundColor: `${colors.error}10`}}
+            />
+        </div>
+
+        {/* -------------Club Events Carousal----------- */}
 
         {/* Club Events - Full Width with NSBM Branding */}
         <NSBMCard className="overflow-hidden relative group" elevated>
@@ -272,154 +355,159 @@ const AdminDashboard = () => {
               >
                 <ChevronRight className="w-4 h-4" />
               </NSBMButton>
-        </div>
-      </div>
-
-        <div className="relative overflow-hidden">
-          <div className="relative h-64 group">
-            <img 
-              src={clubEvents[currentEventIndex].image} 
-              alt={clubEvents[currentEventIndex].name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
-              <div className="p-6 text-white w-full">
-        <div className="flex items-center justify-between">
-          <div>
-                    <h4 className="font-bold text-xl mb-2 drop-shadow-lg">{clubEvents[currentEventIndex].name}</h4>
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Calendar className="w-4 h-4" style={{color: nsbmGreen}} />
-                      <span className="drop-shadow-md">{new Date(clubEvents[currentEventIndex].date).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  {clubEvents[currentEventIndex].featured && (
-                    <span className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-sm px-4 py-2 rounded-full shadow-lg font-semibold">
-                      ⭐ Featured
-                    </span>
-                  )}
-          </div>
             </div>
           </div>
-        </div>
-      </div>
 
-        <div className="flex justify-center p-6 pt-4 space-x-2">
-          {clubEvents.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentEventIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
-                index === currentEventIndex 
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg' 
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to event ${index + 1}`}
-            />
-          ))}
+          <div className="relative overflow-hidden">
+            {clubEvents.length > 0 && (
+              <div className="relative h-64 group">
+                <img 
+                  src={`http://localhost:8080/unicricket360${clubEvents[currentEventIndex].image_url}`}
+                  // src={clubEvents[currentEventIndex].image_url} 
+                  alt={clubEvents[currentEventIndex].event_title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                  <div className="p-6 text-white w-full">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-xl mb-2 drop-shadow-lg">{clubEvents[currentEventIndex].event_title}</h4>
+                        <div className="flex items-center space-x-2 text-sm">
+                          <Calendar className="w-4 h-4" style={{color: nsbmGreen}} />
+                          <span className="drop-shadow-md">{new Date(clubEvents[currentEventIndex].date_time).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      {clubEvents[currentEventIndex].is_featured && (
+                        <span className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-sm px-4 py-2 rounded-full shadow-lg font-semibold">
+                          ⭐ Featured
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-center p-6 pt-4 space-x-2">
+            {clubEvents.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentEventIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
+                  index === currentEventIndex 
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to event ${index + 1}`}
+              />
+            ))}
           </div>
         </NSBMCard>
 
+
         {/* Full Width Layout */}
         <div className="space-y-6">
-          {/* Top Performers with NSBM Branding */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Top Batsmen */}
-            <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
-              <NSBMSectionHeader icon={Trophy} title="Top Batsmen" />
-              <div className="space-y-3">
-                {topBatsmen.map((player, index) => (
-                  <NSBMCard key={player.id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
-                      style={{background: `linear-gradient(135deg, ${nsbmGreen}, ${nsbmGreen}CC)`}}
-                    >
-                      {index + 1}
-                    </div>
-                    <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-green-300/50 transition-all duration-200">
-                      <img 
-                        src={player.photo} 
-                        alt={player.name}
-                        className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
-                      />
-                    </div>
+
+          {/* ----------- Top Performers with NSBM Branding-----------  */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Top Batsmen */}
+              <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
+                <NSBMSectionHeader icon={Trophy} title="Top Batsmen" />
+                <div className="space-y-3">
+                  {topBatsmen.map((player, index) => (
+                    <NSBMCard key={player.id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
+                        style={{background: `linear-gradient(135deg, ${nsbmGreen}, ${nsbmGreen}CC)`}}
+                      >
+                        {index + 1}
+                      </div>
+                      <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-green-300/50 transition-all duration-200">
+                        <img 
+                          src={player.photo} 
+                          alt={player.name}
+                          className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium group-hover/item:text-green-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.name}</p>
+                        <p className="text-sm" style={{color: colors.textSecondary}}>{player.runs} runs</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.average}</p>
+                        <p className="text-xs" style={{color: colors.textMuted}}>Avg</p>
+                      </div>
+                    </NSBMCard>
+                  ))}
+                </div>
+              </NSBMCard>
+
+              {/* Top Bowlers */}
+              <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
+                <NSBMSectionHeader icon={Target} title="Top Bowlers" />
+                <div className="space-y-3">
+                  {topBowlers.map((player, index) => (
+                    <NSBMCard key={player.id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
+                        style={{background: `linear-gradient(135deg, ${nsbmBlue}, ${nsbmBlue}CC)`}}
+                      >
+                        {index + 1}
+                      </div>
+                      <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-blue-300/50 transition-all duration-200">
+                        <img 
+                          src={player.photo} 
+                          alt={player.name}
+                          className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium group-hover/item:text-blue-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.name}</p>
+                        <p className="text-sm" style={{color: colors.textSecondary}}>{player.wickets} wickets</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.average}</p>
+                        <p className="text-xs" style={{color: colors.textMuted}}>Avg</p>
+                      </div>
+                    </NSBMCard>
+                  ))}
+                </div>
+              </NSBMCard>
+
+              {/* Top Fielders */}
+              <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
+                <NSBMSectionHeader icon={Target} title="Top Fielders" />
+                <div className="space-y-3">
+                  {topFieldersData.map((fielder, index) => (
+                    <NSBMCard key={fielder.name} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
+                        style={{background: `linear-gradient(135deg, ${nsbmGold}, ${nsbmGold}CC)`}}
+                      >
+                        {index + 1}
+              </div>
+                      <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-yellow-300/50 transition-all duration-200">
+                        <img 
+                          src={fielder.avatar} 
+                          alt={fielder.name}
+                          className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
+                        />
+              </div>
                     <div className="flex-1">
-                      <p className="font-medium group-hover/item:text-green-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.name}</p>
-                      <p className="text-sm" style={{color: colors.textSecondary}}>{player.runs} runs</p>
+                        <p className="font-medium group-hover/item:text-yellow-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{fielder.name}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.average}</p>
-                      <p className="text-xs" style={{color: colors.textMuted}}>Avg</p>
+                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{fielder.total}</p>
+                        <p className="text-xs" style={{color: colors.textMuted}}>Dismissals</p>
                     </div>
-                  </NSBMCard>
+                    </NSBMCard>
                 ))}
               </div>
-            </NSBMCard>
+              </NSBMCard>
+          </div>
 
-            {/* Top Bowlers */}
-            <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
-              <NSBMSectionHeader icon={Target} title="Top Bowlers" />
-              <div className="space-y-3">
-                {topBowlers.map((player, index) => (
-                  <NSBMCard key={player.id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
-                      style={{background: `linear-gradient(135deg, ${nsbmBlue}, ${nsbmBlue}CC)`}}
-                    >
-                      {index + 1}
-                    </div>
-                    <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-blue-300/50 transition-all duration-200">
-                      <img 
-                        src={player.photo} 
-                        alt={player.name}
-                        className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium group-hover/item:text-blue-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.name}</p>
-                      <p className="text-sm" style={{color: colors.textSecondary}}>{player.wickets} wickets</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.average}</p>
-                      <p className="text-xs" style={{color: colors.textMuted}}>Avg</p>
-                    </div>
-                  </NSBMCard>
-                ))}
-              </div>
-            </NSBMCard>
-
-            {/* Top Fielders */}
-            <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
-              <NSBMSectionHeader icon={Target} title="Top Fielders" />
-              <div className="space-y-3">
-                {topFieldersData.map((fielder, index) => (
-                  <NSBMCard key={fielder.name} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
-                      style={{background: `linear-gradient(135deg, ${nsbmGold}, ${nsbmGold}CC)`}}
-                    >
-                      {index + 1}
-            </div>
-                    <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-yellow-300/50 transition-all duration-200">
-                      <img 
-                        src={fielder.avatar} 
-                        alt={fielder.name}
-                        className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
-                      />
-            </div>
-                  <div className="flex-1">
-                      <p className="font-medium group-hover/item:text-yellow-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{fielder.name}</p>
-                  </div>
-                  <div className="text-right">
-                      <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{fielder.total}</p>
-                      <p className="text-xs" style={{color: colors.textMuted}}>Dismissals</p>
-                  </div>
-                  </NSBMCard>
-              ))}
-            </div>
-            </NSBMCard>
-        </div>
-
-          {/* Upcoming Matches with NSBM Branding */}
+          {/* ----------- Upcoming Matches with NSBM Branding ----------- */}
           <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
             <NSBMSectionHeader icon={Calendar} title="Upcoming Matches" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -448,7 +536,7 @@ const AdminDashboard = () => {
             </div>
           </NSBMCard>
 
-          {/* Recent Matches with NSBM Branding */}
+          {/* ----------- Recent Matches with NSBM Branding ----------- */}
           <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
             <NSBMSectionHeader icon={Activity} title="Recent Matches" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

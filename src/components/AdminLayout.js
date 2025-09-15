@@ -24,14 +24,14 @@ const AdminLayout = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
     { name: 'Player Management', href: '/admin/players', icon: Users },
-    { name: 'Match Data Entry', href: '/admin/matches', icon: Trophy },
     { name: 'Club Operations', href: '/admin/operations', icon: Calendar },
+    // { name: 'Match Data Entry', href: '/admin/matches', icon: Trophy },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('access_token');
     navigate('/');
   };
 

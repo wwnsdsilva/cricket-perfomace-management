@@ -12,6 +12,7 @@ import {
   X
 } from 'lucide-react';
 import { NSBM_DESIGN_SYSTEM, getBrandColor } from '../../styles/nsbm-design-system';
+import PlayerService from '../../services/PlayerService';
 
 // NSBM Brand Colors from Design System
 const { colors } = NSBM_DESIGN_SYSTEM;
@@ -19,6 +20,64 @@ const nsbmGreen = colors.brandPrimary;
 
 // Helper functions for colors with opacity
 const getNsbmGreen = (opacity = 1) => getBrandColor('brandPrimary', opacity);
+
+const samplePlayers = [
+  {
+    id: 'NSBM001',
+    universityId: 'NSBM001',
+    name: 'Monil Jason',
+    email: 'maniya@nsbm.lk',
+    phone: '+94 77 123 4567',
+    dateOfBirth: '1995-03-15',
+    role: 'Batsman',
+    battingStyle: 'Right-hand bat',
+    bowlingStyle: 'Right-arm offbreak',
+    joiningDate: '2023-01-15',
+    photo: '/images/gallery/players/maniya.jpg',
+    runs: 1250,
+    wickets: 5,
+    matches: 15,
+    average: 45.2
+  },
+  {
+    id: 'NSBM002',
+    universityId: 'NSBM002',
+    name: 'Dulaj Bandara',
+    email: 'dulaj@nsbm.lk',
+    phone: '+94 77 234 5678',
+    dateOfBirth: '1992-07-22',
+    role: 'Bowler',
+    battingStyle: 'Left-hand bat',
+    bowlingStyle: 'Left-arm fast',
+    joiningDate: '2023-02-01',
+    photo: '/images/gallery/players/dulaj.jpg',
+    runs: 320,
+    wickets: 28,
+    matches: 12,
+    average: 18.5
+  },
+  {
+    id: 'NSBM003',
+    universityId: 'NSBM003',
+    name: 'Suviru Sathnidu',
+    email: 'suviru@nsbm.lk',
+    phone: '+94 77 345 6789',
+    dateOfBirth: '1988-11-08',
+    role: 'All-rounder',
+    battingStyle: 'Right-hand bat',
+    bowlingStyle: 'Right-arm medium',
+    joiningDate: '2022-09-10',
+    photo: '/images/gallery/players/suviru.jpg',
+    runs: 890,
+    wickets: 15,
+    matches: 18,
+    average: 32.1
+  }
+];
+
+const roles = ['All', 'BATSMAN', 'BOWLER', 'ALLROUNDER', 'WICKETKEEPER'];
+
+const base_url = "http://localhost:8080/unicricket360";
 
 const PlayerManagement = () => {
   const [players, setPlayers] = useState([]);
@@ -28,76 +87,24 @@ const PlayerManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState(null);
   const [formData, setFormData] = useState({
-    universityId: '',
+    university_id: '',
     name: '',
     email: '',
-    phone: '',
-    dateOfBirth: '',
-    jerseyNumber: '',
-    role: 'Batsman',
-    battingStyle: 'Right-hand bat',
-    bowlingStyle: 'Right-arm medium',
-    joiningDate: '',
-    photo: null
+    contact: '',
+    dob: '',
+    jersey_no: '',
+    player_role: '',
+    batting_style: '',
+    bowling_style: '',
+    joined_date: '',
+    image: null
   });
 
   // Sample data - replace with API calls
   useEffect(() => {
-    const samplePlayers = [
-      {
-        id: 'NSBM001',
-        universityId: 'NSBM001',
-        name: 'Monil Jason',
-        email: 'maniya@nsbm.lk',
-        phone: '+94 77 123 4567',
-        dateOfBirth: '1995-03-15',
-        role: 'Batsman',
-        battingStyle: 'Right-hand bat',
-        bowlingStyle: 'Right-arm offbreak',
-        joiningDate: '2023-01-15',
-        photo: '/images/gallery/players/maniya.jpg',
-        runs: 1250,
-        wickets: 5,
-        matches: 15,
-        average: 45.2
-      },
-      {
-        id: 'NSBM002',
-        universityId: 'NSBM002',
-        name: 'Dulaj Bandara',
-        email: 'dulaj@nsbm.lk',
-        phone: '+94 77 234 5678',
-        dateOfBirth: '1992-07-22',
-        role: 'Bowler',
-        battingStyle: 'Left-hand bat',
-        bowlingStyle: 'Left-arm fast',
-        joiningDate: '2023-02-01',
-        photo: '/images/gallery/players/dulaj.jpg',
-        runs: 320,
-        wickets: 28,
-        matches: 12,
-        average: 18.5
-      },
-      {
-        id: 'NSBM003',
-        universityId: 'NSBM003',
-        name: 'Suviru Sathnidu',
-        email: 'suviru@nsbm.lk',
-        phone: '+94 77 345 6789',
-        dateOfBirth: '1988-11-08',
-        role: 'All-rounder',
-        battingStyle: 'Right-hand bat',
-        bowlingStyle: 'Right-arm medium',
-        joiningDate: '2022-09-10',
-        photo: '/images/gallery/players/suviru.jpg',
-        runs: 890,
-        wickets: 15,
-        matches: 18,
-        average: 32.1
-      }
-    ];
-    setPlayers(samplePlayers);
-    setFilteredPlayers(samplePlayers);
+    getAllPlayers();
+    // setPlayers(samplePlayers);
+    // setFilteredPlayers(samplePlayers);
   }, []);
 
   // Filter and search players
@@ -107,25 +114,83 @@ const PlayerManagement = () => {
     if (searchTerm) {
       filtered = filtered.filter(player =>
         player.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        player.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        player.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         player.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        player.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        player.universityId?.toLowerCase().includes(searchTerm.toLowerCase())
+        player.player_role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        player.university_d?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
+    console.log(filterRole);
+
     if (filterRole !== 'All') {
-      filtered = filtered.filter(player => player.role === filterRole);
+      filtered = filtered.filter(player => player.player_role === filterRole);
     }
 
+    /* if (filterRole !== 'All') {
+      filtered = filtered.filter(
+        (player) => player.player_role?.toUpperCase() === filterRole
+      );
+    } */
+
     setFilteredPlayers(filtered);
+
   }, [players, searchTerm, filterRole]);
+
+
+  const getAllPlayers = async () => {
+    let res = await PlayerService.getAll();
+    console.log(res);
+
+    if (res.status == 200) {
+      if (res.data.data != 0) {
+        console.log(res.data.data);
+        setPlayers(res.data.data);
+        setFilteredPlayers(res.data.data);
+      }
+    }
+  };
+
+  const deletePlayer = async (playerId) => {
+    let res = await PlayerService.deletePlayer(playerId);
+    console.log(res);
+
+    if (res.status == 200) {
+      alert(res.data.message);  
+      getAllPlayers();
+    } else {
+      alert(res.data.message);
+    }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  
+    let newValue = value;
+  
+    // Handle contact normalization
+    if (name === "contact") {
+      newValue = value.replace(/\D/g, ""); // keep only numbers
+      if (newValue.startsWith("94")) {
+        newValue = "0" + newValue.slice(2);
+      }
+    }
+  
+    /* setFormData(prev => {
+      const updatedData = { ...prev, [name]: newValue };
+  
+      // Split full name into first_name and last_name
+      if (name === "name") {
+        const parts = newValue.trim().split(" ");
+        updatedData.first_name = parts[0] || "";
+        updatedData.last_name = parts.slice(1).join(" ") || ""; // join remaining parts as last_name
+      }
+  
+      return updatedData;
+    }); */
+
+    setFormData(prev => ({ ...prev, [name]: newValue }));
   };
 
   const handleFileChange = (e) => {
@@ -147,47 +212,73 @@ const PlayerManagement = () => {
       
       setFormData(prev => ({
         ...prev,
-        photo: file
+        image: file
       }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (editingPlayer) {
       // Update existing player
-      setPlayers(prev => prev.map(player => 
-        player.id === editingPlayer.id ? { ...player, ...formData } : player
-      ));
+      // setPlayers(prev => prev.map(player => 
+      //   player.id === editingPlayer.id ? { ...player, ...formData } : player
+      // ));
+
+      console.log(formData);
+
+      let res = await PlayerService.updatePlayer(formData, editingPlayer.id);
+      console.log(res);
+
+      if (res.status == 200) {
+        alert(res.data.message)
+        getAllPlayers();
+      } else{
+        alert(res.data.message)
+      }
+      
     } else {
-      // Add new player
+
+      console.log(formData);
+
+      let res = await PlayerService.savePlayer(formData);
+      console.log(res);
+
+      if (res.status == 201) {
+        alert(res.data.message)
+        getAllPlayers();
+      } else{
+        alert(res.data.message)
+      }
+
+      /* // Add new player
       const newPlayer = {
-        id: formData.universityId,
+        id: formData.university_id,
         ...formData,
         runs: 0,
         wickets: 0,
         matches: 0,
         average: 0
       };
-      setPlayers(prev => [...prev, newPlayer]);
+      setPlayers(prev => [...prev, newPlayer]); */
     }
     
     setShowModal(false);
     setEditingPlayer(null);
     setFormData({
-      universityId: '',
+      university_id: '',
       name: '',
       email: '',
-      phone: '',
-      dateOfBirth: '',
-      role: 'Batsman',
-      battingStyle: 'Right-hand bat',
-      bowlingStyle: 'Right-arm medium',
+      contact: '',
+      dob: '',
+      player_role: '',
+      batting_style: '',
+      bowling_style: '',
       address: '',
       emergencyContact: '',
       emergencyPhone: '',
-      joiningDate: '',
-      photo: ''
+      joined_date: '',
+      image: ''
     });
   };
 
@@ -199,18 +290,21 @@ const PlayerManagement = () => {
 
   const handleDelete = (playerId) => {
     if (window.confirm('Are you sure you want to delete this player?')) {
-      setPlayers(prev => prev.filter(player => player.id !== playerId));
+      // setPlayers(prev => prev.filter(player => player.id !== playerId));
+      deletePlayer(playerId);
     }
   };
 
   const exportToCSV = () => {
     const csvContent = [
-      ['Name', 'Email', 'Phone', 'Role', 'Runs', 'Wickets', 'Matches', 'Average'],
+      ['First Name', 'Last Name', 'Email', 'Contact', 'Player Role', 'Runs', 'Wickets', 'Matches', 'Average'],
       ...filteredPlayers.map(player => [
+        player.first_name,
+        player.last_name,
         player.name,
         player.email,
-        player.phone,
-        player.role,
+        player.contact,
+        player.player_role,
         player.runs,
         player.wickets,
         player.matches,
@@ -227,7 +321,23 @@ const PlayerManagement = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  const roles = ['All', 'Batsman', 'Bowler', 'All-rounder', 'Wicket-keeper'];
+  const clearForm = () => {
+    setFormData({
+      university_id: '',
+      name: '',
+      email: '',
+      contact: '',
+      dob: '',
+      jersey_no: '',
+      player_role: '',
+      batting_style: '',
+      bowling_style: '',
+      joined_date: '',
+      image: null
+    });
+  }
+
+
 
   return (
     <div className="space-y-6">
@@ -377,17 +487,20 @@ const PlayerManagement = () => {
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 rounded-full overflow-hidden ring-2" style={{ringColor: nsbmGreen}}>
                         <img
-                          src={player.photo}
+                          // src={player.image_url}
+                          // src={`http://localhost:8080/unicricket360${player.image_url}`}
+                          src={`${base_url}${player.image_url}`}
                           alt={player.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-base font-semibold" style={{color: colors.textPrimary}}>
+                          {/* {player.first_name} {player.last_name} */}
                           {player.name}
                         </div>
                         <div className="text-sm" style={{color: colors.textMuted}}>
-                          ID: {player.universityId || 'N/A'}
+                          ID: {player.university_id || 'N/A'}
                         </div>
                       </div>
                     </div>
@@ -395,12 +508,12 @@ const PlayerManagement = () => {
 
                   {/* Jersey Number */}
                   <td className="px-6 py-4 text-center">
-                    {player.jerseyNumber ? (
+                    {player.jersey_no ? (
                       <div 
                         className="inline-flex items-center justify-center w-12 h-12 rounded-full text-lg font-bold text-white"
                         style={{backgroundColor: nsbmGreen}}
                       >
-                        {player.jerseyNumber}
+                        {player.jersey_no}
                       </div>
                     ) : (
                       <div 
@@ -419,7 +532,7 @@ const PlayerManagement = () => {
                         {player.email}
                       </div>
                       <div className="text-sm" style={{color: colors.textSecondary}}>
-                        {player.phone}
+                        {player.contact}
                       </div>
                     </div>
                   </td>
@@ -428,13 +541,13 @@ const PlayerManagement = () => {
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold" style={{backgroundColor: getNsbmGreen(0.1), color: nsbmGreen}}>
-                      {player.role}
+                      {player.player_role}
                       </div>
                       <div className="text-sm" style={{color: colors.textSecondary}}>
-                        {player.battingStyle}
+                        {player.batting_style}
                       </div>
                       <div className="text-sm" style={{color: colors.textSecondary}}>
-                        {player.bowlingStyle}
+                        {player.bowling_style}
                       </div>
                     </div>
                   </td>
@@ -446,21 +559,32 @@ const PlayerManagement = () => {
                         <div className="flex items-center space-x-1">
                           <Trophy className="w-4 h-4" style={{color: nsbmGreen}} />
                           <span className="text-sm font-semibold" style={{color: nsbmGreen}}>
-                            {player.runs} runs
+                            {/* {player.runs} runs */}
+                            
+                            {player.batting_performances?.reduce((total, bp) => total + bp.runs, 0) || 0} runs
                           </span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Target className="w-4 h-4" style={{color: nsbmGreen}} />
                           <span className="text-sm font-semibold" style={{color: nsbmGreen}}>
-                            {player.wickets} wkts
+                            {/* {player.wickets} wkts */}
+                            {player.bowling_performances?.reduce((total, bp) => total + bp.wickets, 0) || 0} wkts
                           </span>
                         </div>
                       </div>
                       <div className="text-sm" style={{color: colors.textSecondary}}>
-                        Avg: {player.average}
+                        {/* Avg: {player.average} */}
+                        Avg: {player.batting_performances && player.batting_performances.length > 0
+                          ? (
+                              player.batting_performances.reduce((sum, bp) => sum + bp.runs, 0) / 
+                              player.batting_performances.length
+                            ).toFixed(2)
+                          : 0
+                        }
                       </div>
                       <div className="text-sm" style={{color: colors.textSecondary}}>
-                        Matches: {player.matches}
+                        {/* Matches: {player.matches} */}
+                        Matches: {player.matches || player.batting_performances?.length || 0}
                       </div>
                     </div>
                   </td>
@@ -527,27 +651,28 @@ const PlayerManagement = () => {
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden ring-2" style={{ringColor: nsbmGreen}}>
                       <img
-                        src={player.photo}
+                        src={`${base_url}${player.image_url}`}
                         alt={player.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
                       <div className="text-lg font-semibold" style={{color: colors.textPrimary}}>
-                        {player.name}
+                      {/* {player.first_name} {player.last_name} */}
+                      {player.name}
                       </div>
                       <div className="text-sm" style={{color: colors.textMuted}}>
-                        ID: {player.universityId || 'N/A'}
+                        ID: {player.university_id || 'N/A'}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {player.jerseyNumber ? (
+                    {player.jersey_no ? (
                       <div 
                         className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
                         style={{backgroundColor: nsbmGreen}}
                       >
-                        {player.jerseyNumber}
+                        {player.jersey_no}
                       </div>
                     ) : (
                       <div 
@@ -590,20 +715,20 @@ const PlayerManagement = () => {
                     {player.email}
                   </div>
                   <div className="text-sm" style={{color: colors.textSecondary}}>
-                    {player.phone}
+                    {player.contact}
                   </div>
                 </div>
 
                 {/* Cricket Role */}
                 <div className="space-y-2">
                   <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold" style={{backgroundColor: getNsbmGreen(0.1), color: nsbmGreen}}>
-                    {player.role}
+                    {player.player_role}
                   </div>
                   <div className="text-sm" style={{color: colors.textSecondary}}>
-                    {player.battingStyle}
+                    {player.batting_style}
                   </div>
                   <div className="text-sm" style={{color: colors.textSecondary}}>
-                    {player.bowlingStyle}
+                    {player.bowling_style}
                   </div>
                 </div>
 
@@ -613,7 +738,7 @@ const PlayerManagement = () => {
                     <div className="flex items-center space-x-1">
                       <Trophy className="w-4 h-4" style={{color: nsbmGreen}} />
                       <span className="text-sm font-semibold" style={{color: nsbmGreen}}>
-                        {player.runs} runs
+                        {player.batting_performances.runs} runs
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -672,6 +797,7 @@ const PlayerManagement = () => {
                   onClick={() => {
                     setShowModal(false);
                     setEditingPlayer(null);
+                    clearForm();
                   }}
                   className="p-2 rounded-full transition-all duration-200"
                   style={{color: colors.textMuted}}
@@ -682,7 +808,7 @@ const PlayerManagement = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form /* onSubmit={handleSubmit} */ className="space-y-6">
                 {/* Personal Information Section */}
                 <div className="p-6 rounded-xl shadow-lg" style={{backgroundColor: getNsbmGreen(0.05)}}>
                   <h4 className="text-xl font-bold mb-6 flex items-center" style={{color: colors.textPrimary}}>
@@ -701,8 +827,8 @@ const PlayerManagement = () => {
                       </label>
                       <input
                         type="text"
-                        name="universityId"
-                        value={formData.universityId}
+                        name="university_id"
+                        value={formData.university_id}
                         onChange={handleInputChange}
                         required
                         placeholder="e.g., NSBM001"
@@ -783,24 +909,26 @@ const PlayerManagement = () => {
                     </label>
                     <input
                       type="tel"
-                      name="phone"
-                      value={formData.phone}
+                      name="contact"
+                      value={formData.contact}
                       onChange={handleInputChange}
-                        placeholder="+94 XX XXX XXXX"
-                        className="w-full px-4 py-3 rounded-xl transition-all duration-200"
-                        style={{
-                          borderColor: colors.borderLight,
-                          backgroundColor: colors.backgroundPrimary,
-                          color: colors.textPrimary
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = nsbmGreen;
-                          e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = colors.borderLight;
-                          e.target.style.boxShadow = 'none';
-                        }}
+                      placeholder="+94 XX XXX XXXX"
+                      className="w-full px-4 py-3 rounded-xl transition-all duration-200"
+                      style={{
+                        borderColor: colors.borderLight,
+                        backgroundColor: colors.backgroundPrimary,
+                        color: colors.textPrimary
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = nsbmGreen;
+                        e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = colors.borderLight;
+                        e.target.style.boxShadow = 'none';
+                      }}
+                      maxLength={10}          // limits to 10 characters
+                      pattern="[0-9]{10}"     // requires exactly 10 digits
                     />
                   </div>
                   <div>
@@ -810,8 +938,8 @@ const PlayerManagement = () => {
                     </label>
                     <input
                       type="date"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
+                      name="dob"
+                      value={formData.dob}
                       onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-xl transition-all duration-200"
                         style={{
@@ -836,8 +964,8 @@ const PlayerManagement = () => {
                       </label>
                       <input
                         type="number"
-                        name="jerseyNumber"
-                        value={formData.jerseyNumber}
+                        name="jersey_no"
+                        value={formData.jersey_no}
                         onChange={handleInputChange}
                         required
                         min="1"
@@ -879,8 +1007,8 @@ const PlayerManagement = () => {
                         Playing Role *
                     </label>
                     <select
-                      name="role"
-                      value={formData.role}
+                      name="player_role"
+                      value={formData.player_role}
                       onChange={handleInputChange}
                       required
                         className="w-full px-4 py-3 rounded-xl transition-all duration-200"
@@ -899,10 +1027,10 @@ const PlayerManagement = () => {
                         }}
                       >
                         <option value="">Select Role</option>
-                      <option value="Batsman">Batsman</option>
-                      <option value="Bowler">Bowler</option>
-                      <option value="All-rounder">All-rounder</option>
-                      <option value="Wicket-keeper">Wicket-keeper</option>
+                        <option value="BATSMAN">Batsman</option>
+                        <option value="BOWLER">Bowler</option>
+                        <option value="ALLROUNDER">All-rounder</option>
+                        <option value="WICKETKEEPER">Wicket-keeper</option>
                     </select>
                   </div>
                   <div>
@@ -911,8 +1039,8 @@ const PlayerManagement = () => {
                       Batting Style
                     </label>
                     <select
-                      name="battingStyle"
-                      value={formData.battingStyle}
+                      name="batting_style"
+                      value={formData.batting_style}
                       onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-xl transition-all duration-200"
                         style={{
@@ -929,8 +1057,9 @@ const PlayerManagement = () => {
                           e.target.style.boxShadow = 'none';
                         }}
                     >
-                      <option value="Right-hand bat">Right-hand bat</option>
-                      <option value="Left-hand bat">Left-hand bat</option>
+                        <option value="">Select</option>
+                        <option value="RIGHT_HAND">Right Hand</option>
+                        <option value="LEFT_HAND">Left Hand</option>
                     </select>
                   </div>
                   <div>
@@ -939,8 +1068,8 @@ const PlayerManagement = () => {
                       Bowling Style
                     </label>
                     <select
-                      name="bowlingStyle"
-                      value={formData.bowlingStyle}
+                      name="bowling_style"
+                      value={formData.bowling_style}
                       onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-xl transition-all duration-200"
                         style={{
@@ -957,14 +1086,15 @@ const PlayerManagement = () => {
                           e.target.style.boxShadow = 'none';
                         }}
                     >
-                      <option value="Right-arm medium">Right-arm medium</option>
-                      <option value="Right-arm fast">Right-arm fast</option>
-                      <option value="Right-arm offbreak">Right-arm offbreak</option>
-                      <option value="Right-arm legbreak">Right-arm legbreak</option>
-                      <option value="Left-arm fast">Left-arm fast</option>
-                      <option value="Left-arm medium">Left-arm medium</option>
-                      <option value="Left-arm orthodox">Left-arm orthodox</option>
-                      <option value="Left-arm chinaman">Left-arm chinaman</option>
+                      <option value="">Select</option>
+                      <option value="RIGHT_ARM_MEDIUM">Right-arm medium</option>
+                      <option value="RIGHT_ARM_FAST">Right-arm fast</option>
+                      <option value="RIGHT_ARM_OFF_BREAK">Right-arm offbreak</option>
+                      <option value="RIGHT_ARM_LEG_BREAK">Right-arm legbreak</option>
+                      <option value="LEFT_ARM_FAST">Left-arm fast</option>
+                      <option value="LEFT_ARM_MEDIUM">Left-arm medium</option>
+                      <option value="LEFT_ARM_ORTHODOX">Left-arm orthodox</option>
+                      <option value="LEFT_ARM_CHINAMAN">Left-arm chinaman</option>
                     </select>
                   </div>
                 <div>
@@ -974,8 +1104,8 @@ const PlayerManagement = () => {
                     </label>
                     <input
                         type="date"
-                        name="joiningDate"
-                        value={formData.joiningDate}
+                        name="joined_date"
+                        value={formData.joined_date}
                       onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-xl transition-all duration-200"
                         style={{
@@ -1035,16 +1165,16 @@ const PlayerManagement = () => {
                         </div>
                         <div className="flex text-sm" style={{color: colors.textSecondary}}>
                           <label
-                            htmlFor="photo-upload"
+                            htmlFor="image-upload"
                             className="relative cursor-pointer text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
                             style={{backgroundColor: nsbmGreen}}
                             onMouseEnter={(e) => e.target.style.backgroundColor = getNsbmGreen(0.8)}
                             onMouseLeave={(e) => e.target.style.backgroundColor = nsbmGreen}
                           >
                             <span>Upload a file</span>
-                  <input
-                              id="photo-upload"
-                    name="photo"
+                            <input
+                              id="image-upload"
+                              name="image"
                               type="file"
                               accept=".jpg,.jpeg,.png"
                               onChange={handleFileChange}
@@ -1059,7 +1189,7 @@ const PlayerManagement = () => {
                         >
                           PNG, JPG up to 10MB
                         </p>
-                        {formData.photo && (
+                        {formData.image && (
                           <div 
                             className="mt-3 p-3 rounded-lg border"
                             style={{
@@ -1069,14 +1199,14 @@ const PlayerManagement = () => {
                           >
                             <p className="text-sm font-semibold flex items-center justify-center" style={{color: nsbmGreen}}>
                               <span className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: nsbmGreen}}></span>
-                              ✓ {formData.photo.name}
+                              ✓ {formData.image.name}
                             </p>
                           </div>
                         )}
                       </div>
                     </div>
                     <p className="text-xs mt-3 text-center" style={{color: colors.textMuted}}>
-                      Optional: Upload a clear photo of the player (JPG or PNG format)
+                      Optional: Upload a clear image of the player (JPG or PNG format)
                     </p>
                   </div>
                 </div>
@@ -1088,19 +1218,8 @@ const PlayerManagement = () => {
                     onClick={() => {
                       setShowModal(false);
                       setEditingPlayer(null);
-                      setFormData({
-                        universityId: '',
-                        name: '',
-                        email: '',
-                        phone: '',
-                        dateOfBirth: '',
-                        jerseyNumber: '',
-                        role: 'Batsman',
-                        battingStyle: 'Right-hand bat',
-                        bowlingStyle: 'Right-arm medium',
-                        joiningDate: '',
-                        photo: null
-                      });
+                      clearForm();
+                      
                     }}
                     className="px-8 py-3 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
                     style={{
@@ -1120,7 +1239,8 @@ const PlayerManagement = () => {
                     Cancel
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     className="px-8 py-3 text-white rounded-xl transition-all duration-200 font-semibold flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
                     style={{backgroundColor: nsbmGreen}}
                     onMouseEnter={(e) => e.target.style.backgroundColor = getNsbmGreen(0.8)}
