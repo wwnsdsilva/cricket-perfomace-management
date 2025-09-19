@@ -19,9 +19,28 @@ class MatchService {
         });
         return await promise;
     };
+    
+    getAllMatchStats = async (matchId) => {
+        const access_token = JSON.parse(localStorage.getItem("access_token"));
+        const promise = new Promise((resolve, reject) => {
+          axios
+            .get("match/stats/"+matchId, {
+              headers: {
+                Authorization: `Bearer ${access_token}`,
+              },
+            })
+            .then((res) => {
+              return resolve(res);
+            })
+            .catch((er) => {
+              return resolve(er);
+            });
+        });
+        return await promise;
+    };
 
-      // With image
-      saveMatch = async (data) => {
+    // With image
+    saveMatch = async (data) => {
       console.log(data);
       const access_token = JSON.parse(localStorage.getItem("access_token"));
     

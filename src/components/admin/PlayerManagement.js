@@ -160,7 +160,7 @@ const PlayerManagement = () => {
       alert(res.data.message);  
       getAllPlayers();
     } else {
-      alert(res.data.message);
+      alert(res.response.data.message);
     }
   }
 
@@ -190,7 +190,19 @@ const PlayerManagement = () => {
       return updatedData;
     }); */
 
-    setFormData(prev => ({ ...prev, [name]: newValue }));
+    
+    // Split full name into first_name and last_name
+    if (name === "name") {
+      const parts = newValue.trim().split(" ");
+      const fName = parts[0] || "";
+      const lName = parts.slice(1).join(" ") || ""; // join remaining parts as last_name
+
+      console.log(fName);
+      console.log(lName);
+      setFormData(prev => ({ ...prev, [name]: newValue, first_name : fName, last_name: lName}));
+    }
+
+    setFormData(prev => ({ ...prev, [name]: newValue}));
   };
 
   const handleFileChange = (e) => {
@@ -219,67 +231,59 @@ const PlayerManagement = () => {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    if (editingPlayer) {
-      // Update existing player
-      // setPlayers(prev => prev.map(player => 
-      //   player.id === editingPlayer.id ? { ...player, ...formData } : player
-      // ));
 
-      console.log(formData);
-
-      let res = await PlayerService.updatePlayer(formData, editingPlayer.id);
-      console.log(res);
-
-      if (res.status == 200) {
-        alert(res.data.message)
-        getAllPlayers();
-      } else{
-        alert(res.data.message)
+    try {
+      if (editingPlayer) {
+        // Update existing player
+        // setPlayers(prev => prev.map(player => 
+        //   player.id === editingPlayer.id ? { ...player, ...formData } : player
+        // ));
+  
+        console.log(formData);
+  
+        let res = await PlayerService.updatePlayer(formData, editingPlayer.id);
+        console.log(res);
+  
+        if (res.status == 200) {
+          alert(res.data.message)
+          getAllPlayers();
+        } else{
+          alert(res.response.data.message)
+        }
+        
+      } else {
+  
+        console.log(formData);
+  
+        let res = await PlayerService.savePlayer(formData);
+        console.log(res);
+  
+        if (res.status == 201) {
+          alert(res.data.message)
+          getAllPlayers();
+        } else{
+          alert(res.response.data.message)
+        }
+  
+        /* // Add new player
+        const newPlayer = {
+          id: formData.university_id,
+          ...formData,
+          runs: 0,
+          wickets: 0,
+          matches: 0,
+          average: 0
+        };
+        setPlayers(prev => [...prev, newPlayer]); */
       }
-      
-    } else {
-
-      console.log(formData);
-
-      let res = await PlayerService.savePlayer(formData);
-      console.log(res);
-
-      if (res.status == 201) {
-        alert(res.data.message)
-        getAllPlayers();
-      } else{
-        alert(res.data.message)
-      }
-
-      /* // Add new player
-      const newPlayer = {
-        id: formData.university_id,
-        ...formData,
-        runs: 0,
-        wickets: 0,
-        matches: 0,
-        average: 0
-      };
-      setPlayers(prev => [...prev, newPlayer]); */
+    } catch (err) {
+      console.error("Error saving player:", err);
     }
+    
     
     setShowModal(false);
     setEditingPlayer(null);
-    setFormData({
-      university_id: '',
-      name: '',
-      email: '',
-      contact: '',
-      dob: '',
-      player_role: '',
-      batting_style: '',
-      bowling_style: '',
-      address: '',
-      emergencyContact: '',
-      emergencyPhone: '',
-      joined_date: '',
-      image: ''
-    });
+    clearForm();
   };
 
   const handleEdit = (player) => {
@@ -328,12 +332,14 @@ const PlayerManagement = () => {
       email: '',
       contact: '',
       dob: '',
-      jersey_no: '',
       player_role: '',
       batting_style: '',
       bowling_style: '',
+      address: '',
+      emergencyContact: '',
+      emergencyPhone: '',
       joined_date: '',
-      image: null
+      image: ''
     });
   }
 

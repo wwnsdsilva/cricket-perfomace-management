@@ -25,6 +25,13 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { samplePlayerData, performanceTrendData, fitnessTrendData, boundaryBreakdown } from '../data/playerData';
 import { NSBM_DESIGN_SYSTEM, getBrandColor } from '../styles/nsbm-design-system';
+import PlayerService from '../services/PlayerService';
+import EventService from '../services/EventService';
+import PerformanceService from '../services/PerformanceService';
+import FitnessService from '../services/FitnessService';
+import MatchService from '../services/MatchService';
+import InjuryService from '../services/InjuryService';
+import SessionService from '../services/SessionService';
 
 // NSBM Design System Colors
 const { colors, shadows } = NSBM_DESIGN_SYSTEM;
@@ -35,6 +42,38 @@ const nsbmGold = colors.brandAccent;
 // Helper function for NSBM Green with opacity
 const getNsbmGreen = (opacity = 1) => getBrandColor('brandPrimary', opacity);
 
+const sampleEvents = [
+  {
+    id: 1,
+    name: "Annual Cricket Awards Night",
+    date: "2024-02-15",
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop",
+    featured: true
+  },
+  {
+    id: 2,
+    name: "Training Camp",
+    date: "2024-03-10",
+    image: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop",
+    featured: false
+  },
+  {
+    id: 3,
+    name: "Fundraising Event",
+    date: "2024-03-20",
+    image: "https://images.unsplash.com/photo-1519167758481-83f29b4a0a0e?w=400&h=200&fit=crop",
+    featured: false
+  },
+  {
+    id: 4,
+    name: "Championship Victory",
+    date: "2024-02-15",
+    image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop",
+    featured: false
+  }
+];
+
+const base_url = "http://localhost:8080/unicricket360";
 
 const PlayerDashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -42,73 +81,351 @@ const PlayerDashboard = () => {
 
   // Event carousel state
   const [eventIndex, setEventIndex] = useState(0);
-  const sampleEvents = [
-    {
-      id: 1,
-      name: "Annual Cricket Awards Night",
-      date: "2024-02-15",
-      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop",
-      featured: true
-    },
-    {
-      id: 2,
-      name: "Training Camp",
-      date: "2024-03-10",
-      image: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop",
-      featured: false
-    },
-    {
-      id: 3,
-      name: "Fundraising Event",
-      date: "2024-03-20",
-      image: "https://images.unsplash.com/photo-1519167758481-83f29b4a0a0e?w=400&h=200&fit=crop",
-      featured: false
-    },
-    {
-      id: 4,
-      name: "Championship Victory",
-      date: "2024-02-15",
-      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop",
-      featured: false
-    }
-  ];
-
+  const [playerDetails, setPlayerDetails] = useState({});
+  const [clubEvents, setClubEvents] = useState([]);
+  const [battingAverageData, setBattingAverageData] = useState({});
+  const [bowlingAverageData, setBowlingAverageData] = useState({});
+  const [fitnessData, setFitnessData] = useState({});
+  const [matches, setMatches] = useState([]);
+  const [recentMatches, setRecentMatches] = useState([]);
+  const [playerPerf, setPlayerPer] = useState({});
+  const [boundaryPerc, setBoundaryPerc] = useState({});
+  const [boundaryBreakdownData, setBoundaryBreakdownData] = useState([]);
+  const [injuryImpact, setInjuryImpact] = useState({});
+  const [injuryData, setInjuryData] = useState([]);
+  const [upcomingMatches, setUpcomingMatches] = useState([]);
+  const [playerSessionWithAttendance, setPlayerSessionWithAttendance] = useState([]);
+  
   // Use imported player data
   const playerData = samplePlayerData;
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_id');
     navigate('/');
   };
 
   // Event navigation functions
-  const nextEvent = () => setEventIndex((prev) => (prev + 1) % sampleEvents.length);
-  const prevEvent = () => setEventIndex((prev) => (prev - 1 + sampleEvents.length) % sampleEvents.length);
+  const nextEvent = () => setEventIndex((prev) => (prev + 1) % clubEvents.length);
+  const prevEvent = () => setEventIndex((prev) => (prev - 1 + clubEvents.length) % clubEvents.length);
+
+  useEffect(()=>{
+    searchPlayerById();
+    getClubEvents();
+    getBattingAverageByPlayer();
+    getBowlingAverageByPlayer();
+    getFitnessDataByPlayer();
+    getAllMatches();
+    getPerformanceDetailsByPlayerId();
+    getBoundaryPercByPlayerId();
+    getInjuryImpactByPlayer();
+    getInjuryByPlayerId();
+    getSessionsWithAttendanceForPlayer();
+  },[])
 
   // Auto-advance events
   useEffect(() => {
     const id = setInterval(() => {
-      setEventIndex((prev) => (prev + 1) % sampleEvents.length);
+      setEventIndex((prev) => (prev + 1) % clubEvents.length);
     }, 5000);
     return () => clearInterval(id);
-  }, [sampleEvents.length]);
+  }, [clubEvents.length]);
 
+
+  // ------------ API Calls -----------------
+
+  const searchPlayerById = async() => {
+    try {
+      const res = await PlayerService.searchPlayerById(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data) {
+          console.log(res.data.data);
+          setPlayerDetails(res.data.data); 
+        } else {
+          alert(res.data.message)
+          setPlayerDetails({}); 
+        }
+      } else {
+        console.error("Failed to fetch player data");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player data: ", error);
+    }
+  }
+
+  const getBattingAverageByPlayer = async() => {
+    try {
+      const res = await PerformanceService.getBattingAverage(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setBattingAverageData(res.data.data); 
+        } else {
+          alert(res.data.message)
+          setBattingAverageData({}); 
+        }
+      } else {
+        console.error("Failed to fetch player batting average");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player batting average: ", error);
+    }
+  }
+
+  const getBowlingAverageByPlayer = async() => {
+    try {
+      const res = await PerformanceService.getBowlingAverage(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setBowlingAverageData(res.data.data); 
+        } else {
+          alert(res.data.message)
+          setBowlingAverageData({}); 
+        }
+      } else {
+        console.error("Failed to fetch player bowling average");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player bowling average: ", error);
+    }
+  }
+  
+  const getFitnessDataByPlayer = async() => {
+    try {
+      const res = await FitnessService.getFitnessByPlayerId(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setFitnessData(res.data.data); 
+        } else {
+          alert(res.data.message)
+          setFitnessData({}); 
+        }
+      } else {
+        console.error("Failed to fetch player fitness details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player fitness details: ", error);
+    }
+  }
+
+  const getClubEvents = async () => {
+    try {
+      const res = await EventService.getAll();
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setClubEvents(res.data.data);
+        } else {
+          console.log("No club events found");
+          setClubEvents([]);
+        }
+      } else {
+        console.log("Failed to fetch events");
+      }
+    } catch (error) {
+      console.error("Error fetching club events:", error);
+    }
+  };
+
+  const getAllMatches = async () => {
+    try {
+      const res = await MatchService.getAll();
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setMatches(res.data.data);
+
+          // filter upcoming matches
+          const upcoming = res.data.data.filter((match)=> match.status === "UPCOMING")
+          setUpcomingMatches(upcoming);
+
+          // filter recent matches (last 3 completed)
+          const recent = res.data.data
+          .filter((match) => match.status === "COMPLETED")
+          .sort(
+            (a, b) => new Date(b.date_time) - new Date(a.date_time) // latest first
+          )
+          .slice(0, 3); // take only last 3
+
+          setRecentMatches(recent);
+
+        } else {
+          alert(res.data.message)
+          setMatches([]);
+        }
+      } else {
+        console.error("Failed to fetch matches");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching matches: ", error);
+    }
+  };
+
+  const getPerformanceDetailsByPlayerId = async() => {
+    try {
+      const res = await PerformanceService.getPerformanceDetailsByPlayerId(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setPlayerPer(res.data.data); 
+        } else {
+          alert(res.data.message)
+          setPlayerPer({}); 
+        }
+      } else {
+        console.error("Failed to fetch player performance details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player performance details: ", error);
+    }
+  }
+
+  const getBoundaryPercByPlayerId = async() => {
+    try {
+      const res = await PerformanceService.getBoundaryPerc(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          const bp = res.data.data;
+          console.log(bp);
+          setBoundaryPerc(bp); 
+
+          const boundaryBreakdown = [
+            { name: 'Fours', value: bp.totalFours, color: '#3B82F6' },
+            { name: 'Sixes', value: bp.totalSixes, color: '#EF4444' },
+            { name: 'Total Runs', value: bp.totalRuns, color: '#f1c40f' },
+            { name: 'Boundary Runs', value: bp.boundaryRuns, color: '#10B981' },
+            // { name: 'Singles/Doubles', value: 45, color: '#10B981' }
+          ];
+
+          setBoundaryBreakdownData(boundaryBreakdown);
+
+        } else {
+          alert(res.data.message)
+          setBoundaryPerc({}); 
+        }
+      } else {
+        console.error("Failed to fetch player's boundary percentage details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player's boundary percentage details: ", error);
+    }
+  }
+
+  const getInjuryImpactByPlayer = async() => {
+    try {
+      const res = await PerformanceService.getInjuryImpact(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setInjuryImpact(res.data.data); 
+
+        } else {
+          alert(res.data.message)
+          setInjuryImpact({}); 
+        }
+      } else {
+        console.error("Failed to fetch player's injury impact details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player's injury impact details: ", error);
+    }
+  }
+
+  const getInjuryByPlayerId = async() => {
+    try {
+      const res = await InjuryService.getInjuryByPlayerId(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setInjuryData(res.data.data); 
+
+        } else {
+          alert(res.data.message)
+          setInjuryData([]); 
+        }
+      } else {
+        console.error("Failed to fetch player's injury impact details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player's injury impact details: ", error);
+    }
+  }
+
+  const getSessionsWithAttendanceForPlayer = async() => {
+    try {
+      const res = await SessionService.getSessionsWithAttendanceForPlayer(localStorage.getItem('user_id'));
+      console.log(res);
+
+      if (res.status === 200) {
+        if (res.data.data) {
+          console.log(res.data.data);
+          setPlayerSessionWithAttendance(res.data.data); 
+
+        } else {
+          alert(res.data.message)
+          setPlayerSessionWithAttendance([]); 
+        }
+      } else {
+        console.error("Failed to fetch player's session details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching player's session details: ", error);
+    }
+  }
+
+
+  // -----------------------------------------
 
   const getResultColor = (outcome) => {
     switch (outcome) {
-      case 'victory': return `bg-green-100 text-green-800 border-green-200`;
-      case 'defeat': return `bg-red-100 text-red-800 border-red-200`;
-      case 'draw': return `bg-gray-100 text-gray-800 border-gray-200`;
+      case 'WIN': return `bg-green-100 text-green-800 border-green-200`;
+      case 'LOSS': return `bg-red-100 text-red-800 border-red-200`;
+      case 'DRAW': return `bg-gray-100 text-gray-800 border-gray-200`;
       default: return `bg-gray-100 text-gray-800 border-gray-200`;
     }
   };
 
   const getInjuryStatusColor = (status) => {
     switch (status) {
-      case 'Recovered': return nsbmGreen;
-      case 'Recovering': return nsbmGold;
-      case 'Injured': return colors.error;
+      case 'RECOVERED': return nsbmGreen;
+      case 'RECOVERING': return nsbmGold;
+      case 'INJURED': return colors.error;
       default: return colors.textSecondary;
     }
   };
@@ -168,15 +485,17 @@ const PlayerDashboard = () => {
               <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2" style={{borderColor: nsbmGreen}}>
                 <img 
-                  src={playerData.photo} 
-                  alt={playerData.name}
+                  // src={playerData.photo} 
+                  src={`${base_url}${playerDetails.image_url}`} 
+                  // alt={playerData.name}
+                  alt={playerDetails.name}
                   className="w-full h-full object-cover"
                 />
                 </div>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-sm sm:text-lg lg:text-xl font-semibold truncate" style={{color: colors.textPrimary}}>{playerData.name}</h1>
-                <p className="text-xs sm:text-sm truncate" style={{color: colors.textSecondary}}>{playerData.role}</p>
+                <h1 className="text-sm sm:text-lg lg:text-xl font-semibold truncate" style={{color: colors.textPrimary}}>{playerDetails.name}</h1>
+                <p className="text-xs sm:text-sm truncate" style={{color: colors.textSecondary}}>{playerDetails.player_role}</p>
               </div>
             </div>
             <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
@@ -283,7 +602,7 @@ const PlayerDashboard = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div className="flex-1">
                   <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-1 sm:mb-2">
-                    Welcome back, {playerData.name}! 👋
+                    Welcome back, {playerDetails.first_name}! 👋
                   </h2>
                   <p className="text-sm sm:text-base text-white/90">
                     Here's your latest performance and upcoming activities
@@ -339,41 +658,45 @@ const PlayerDashboard = () => {
                     </div>
                   </div>
                   
-                  <div className="relative overflow-hidden rounded-lg flex-1">
-                    <div className="relative h-full">
-                      <img 
-                        src={sampleEvents[eventIndex].image}
-                        alt={sampleEvents[eventIndex].name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
-                        <div className="p-4 text-white w-full">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h4 className="font-bold text-lg mb-1">{sampleEvents[eventIndex].name}</h4>
-                              <div className="flex items-center space-x-2 text-sm">
-                                <Calendar className="w-4 h-4" />
-                                <span>{new Date(sampleEvents[eventIndex].date).toLocaleDateString()}</span>
+                  {clubEvents.length > 0 && clubEvents[eventIndex] && (
+                    <div className="relative overflow-hidden rounded-lg flex-1">
+                      <div className="relative h-full">
+                        <img 
+                          // src={clubEvents[eventIndex].image}
+                          src={`${base_url}${clubEvents[eventIndex].image_url}`}
+                          // alt={clubEvents[eventIndex].name}
+                          alt={clubEvents[eventIndex].event_title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                          <div className="p-4 text-white w-full">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-bold text-lg mb-1">{clubEvents[eventIndex].event_title}</h4>
+                                <div className="flex items-center space-x-2 text-sm">
+                                  <Calendar className="w-4 h-4" />
+                                  <span>{new Date(clubEvents[eventIndex].date_time).toLocaleDateString()}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
+                        {clubEvents[eventIndex].is_featured && (
+                          <div className="absolute top-2 right-2">
+                            <span 
+                              className="text-white text-xs px-2 py-1 rounded-full"
+                              style={{backgroundColor: nsbmGold}}
+                            >
+                              Featured
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      {sampleEvents[eventIndex].featured && (
-                        <div className="absolute top-2 right-2">
-                          <span 
-                            className="text-white text-xs px-2 py-1 rounded-full"
-                            style={{backgroundColor: nsbmGold}}
-                          >
-                            Featured
-                          </span>
-                        </div>
-                      )}
                     </div>
-                  </div>
+                  )}
                   
                   <div className="flex justify-center mt-3 space-x-1">
-                    {sampleEvents.map((_, i) => (
+                    {clubEvents.map((_, i) => (
                       <button
                         key={i}
                         onClick={() => setEventIndex(i)}
@@ -400,14 +723,15 @@ const PlayerDashboard = () => {
                 >
                   <div className="flex items-center space-x-2 mb-4">
                     <Trophy className="w-5 h-5" style={{color: nsbmGold}} />
-                    <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Average</h3>
+                    <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Averageee</h3>
                   </div>
-                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div>
+                  {/* <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div> */}
+                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{Number(battingAverageData.battingAverage)?.toFixed(2)}</div>
                   <div className="text-sm" style={{color: colors.textSecondary}}>Current Season</div>
-                  <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
+                  {/* <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
                     <TrendingUp className="w-4 h-4 mr-1" />
                     +2.3 from last season
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Bowling Average Card */}
@@ -423,12 +747,13 @@ const PlayerDashboard = () => {
                     <Target className="w-5 h-5" style={{color: colors.error}} />
                     <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Bowling Average</h3>
                   </div>
-                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div>
+                  {/* <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div> */}
+                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{Number(bowlingAverageData.bowlingAverage)?.toFixed(2)}</div>
                   <div className="text-sm" style={{color: colors.textSecondary}}>Current Season</div>
-                  <div className="mt-2 flex items-center text-sm" style={{color: colors.error}}>
+                  {/* <div className="mt-2 flex items-center text-sm" style={{color: colors.error}}>
                     <TrendingUp className="w-4 h-4 mr-1 rotate-180" />
                     +1.2 from last season
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Fitness Level Card */}
@@ -444,12 +769,14 @@ const PlayerDashboard = () => {
                     <Heart className="w-5 h-5" style={{color: nsbmGreen}} />
                     <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Fitness Level</h3>
                   </div>
-                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.beepTest.level}</div>
-                  <div className="text-sm" style={{color: colors.textSecondary}}>Beep Test: {playerData.fitness.beepTest.current}</div>
-                  <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
+                  {/* <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.beepTest.level}</div> */}
+                  {/* <div className="text-sm" style={{color: colors.textSecondary}}>Beep Test: {playerData.fitness.beepTest.current}</div> */}
+                  <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{fitnessData.status == "FIT" ? "Excellent" : fitnessData.status}</div>
+                  <div className="text-sm" style={{color: colors.textSecondary}}>Beep Test: {fitnessData.beep_level}</div>
+                  {/* <div className="mt-2 flex items-center text-sm" style={{color: nsbmGreen}}>
                     <TrendingUp className="w-4 h-4 mr-1" />
                     Improving fitness
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -468,27 +795,28 @@ const PlayerDashboard = () => {
                 <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>Last 3 Match Results</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {playerData.recentResults.map((match) => (
+                {/* {playerData.recentResults.map((match) => ( */}
+                {recentMatches.map((match) => (
                   <div 
                     key={match.id} 
                     className="flex flex-col p-4 rounded-lg"
                     style={{backgroundColor: colors.backgroundSecondary}}
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium" style={{color: colors.textPrimary}}>vs {match.opponent}</h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.outcome)}`}>
+                      <h4 className="font-medium" style={{color: colors.textPrimary}}>vs {match.opponent.team_name}</h4>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getResultColor(match.result)}`}>
                         {match.result}
                       </span>
                     </div>
-                    <p className="text-sm mb-2" style={{color: colors.textSecondary}}>{match.score}</p>
+                    <p className="text-sm mb-2" style={{color: colors.textSecondary}}>{`${match.score} vs ${match.opponent_score}` }</p>
                     <div className="flex items-center space-x-1 text-xs mb-3" style={{color: colors.textTertiary}}>
                       <Calendar className="w-3 h-3" />
-                      <span>{new Date(match.date).toLocaleDateString()}</span>
+                      <span>{new Date(match.date_time).toLocaleDateString()}</span>
                     </div>
-                    <div className="mt-auto">
+                    {/* <div className="mt-auto">
                       <p className="text-sm font-medium" style={{color: colors.textPrimary}}>My Performance</p>
                       <p className="text-xs" style={{color: colors.textSecondary}}>{match.myPerformance}</p>
-                    </div>
+                    </div> */}
                   </div>
                 ))}
               </div>
@@ -514,8 +842,10 @@ const PlayerDashboard = () => {
                   <Trophy className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmGold}} />
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Batting Average</h3>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div>
-                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>from {playerData.currentSeason.batting.matches} matches</div>
+                {/* <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.average}</div> */}
+                {/* <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>from {playerData.currentSeason.batting.matches} matches</div> */}
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{Number(playerPerf.batting_average)?.toFixed(2)}</div>
+                <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>from {playerPerf.matches_played} matches</div>
               </div>
 
               <div 
@@ -530,7 +860,8 @@ const PlayerDashboard = () => {
                   <Zap className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmBlue}} />
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Strike Rate</h3>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.strikeRate}</div>
+                {/* <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.strikeRate}</div> */}
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{Number(playerPerf.avg_strike_rate).toFixed(2)}</div>
                 <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>runs per 100 balls</div>
               </div>
 
@@ -546,7 +877,8 @@ const PlayerDashboard = () => {
                   <Target className="w-4 h-4 sm:w-5 sm:h-5" style={{color: colors.error}} />
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Bowling Average</h3>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div>
+                {/* <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.average}</div> */}
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{Number(playerPerf.bowling_average).toFixed(2)}</div>
                 <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>runs per wicket</div>
               </div>
 
@@ -562,7 +894,8 @@ const PlayerDashboard = () => {
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmGreen}} />
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Economy Rate</h3>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.economy}</div>
+                {/* <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.bowling.economy}</div> */}
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{(playerPerf.economy_rate).toFixed(2)}</div>
                 <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>runs per over</div>
               </div>
 
@@ -578,7 +911,8 @@ const PlayerDashboard = () => {
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmBlue}} />
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Boundary %</h3>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.boundaryPercentage}%</div>
+                {/* <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.batting.boundaryPercentage}%</div> */}
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{boundaryPerc.boundaryPercentage.toFixed(2)}%</div>
                 <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>of total runs</div>
               </div>
 
@@ -594,17 +928,18 @@ const PlayerDashboard = () => {
                   <Users className="w-4 h-4 sm:w-5 sm:h-5" style={{color: nsbmGreen}} />
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{color: colors.textPrimary}}>Fielding</h3>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.fielding.catches + playerData.currentSeason.fielding.runOuts + playerData.currentSeason.fielding.stumpings}</div>
+                {/* <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.currentSeason.fielding.catches + playerData.currentSeason.fielding.runOuts + playerData.currentSeason.fielding.stumpings}</div> */}
+                <div className="text-2xl sm:text-3xl font-bold" style={{color: colors.textPrimary}}>{playerPerf.total_dismissals}</div>
                 <div className="text-xs sm:text-sm" style={{color: colors.textSecondary}}>catches + run outs + stumpings</div>
                   <div className="mt-2 text-sm" style={{color: colors.textSecondary}}>
-                  {playerData.currentSeason.fielding.catches} catches, {playerData.currentSeason.fielding.runOuts} run outs, {playerData.currentSeason.fielding.stumpings} stumpings
+                  {playerPerf.total_catches} catches, {playerPerf.total_run_outs} run outs, {playerPerf.total_stumpings} stumpings
                 </div>
               </div>
             </div>
 
             {/* Performance Trends */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div 
+              {/* <div 
                 className="rounded-xl shadow-sm border p-6" 
                 style={{ 
                   backgroundColor: colors.backgroundPrimary, 
@@ -623,7 +958,7 @@ const PlayerDashboard = () => {
                     <Line type="monotone" dataKey="wickets" stroke="#EF4444" strokeWidth={2} name="Wickets" />
                   </LineChart>
                 </ResponsiveContainer>
-              </div>
+              </div> */}
 
               <div 
                 className="rounded-xl shadow-sm border p-6" 
@@ -637,7 +972,7 @@ const PlayerDashboard = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={boundaryBreakdown}
+                      data={boundaryBreakdownData}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -645,7 +980,7 @@ const PlayerDashboard = () => {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {boundaryBreakdown.map((entry, index) => (
+                      {boundaryBreakdownData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -653,7 +988,7 @@ const PlayerDashboard = () => {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-4 space-y-2">
-                  {boundaryBreakdown.map((item) => (
+                  {boundaryBreakdownData.map((item) => (
                     <div key={item.name} className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
@@ -685,7 +1020,8 @@ const PlayerDashboard = () => {
                   <Zap className="w-5 h-5 text-yellow-500" />
                   <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Sprint 20m</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.sprint20m.current}s</div>
+                {/* <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.sprint20m.current}s</div> */}
+                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{fitnessData.sprint_time.toFixed(2)}s</div>
                 <div className="text-sm" style={{color: colors.textSecondary}}>Current time</div>
                   <div className="mt-2 text-sm" style={{color: colors.textSecondary}}>
                   Best: {playerData.fitness.sprint20m.best}s | Avg: {playerData.fitness.sprint20m.average}s
@@ -708,7 +1044,8 @@ const PlayerDashboard = () => {
                   <Heart className="w-5 h-5 text-red-500" />
                   <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Beep Test</h3>
                 </div>
-                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.beepTest.current}</div>
+                {/* <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{playerData.fitness.beepTest.current}</div> */}
+                <div className="text-3xl font-bold" style={{color: colors.textPrimary}}>{fitnessData.beep_level.toFixed(2)}</div>
                 <div className="text-sm" style={{color: colors.textSecondary}}>Current level</div>
                   <div className="mt-2 text-sm" style={{color: colors.textSecondary}}>
                   Best: {playerData.fitness.beepTest.best} | Avg: {playerData.fitness.beepTest.average}
@@ -730,10 +1067,16 @@ const PlayerDashboard = () => {
                   <Shield className="w-5 h-5 text-green-500" />
                   <h3 className="text-lg font-semibold" style={{color: colors.textPrimary}}>Injury Status</h3>
                 </div>
-                <div className="text-3xl font-bold text-green-600">Healthy</div>
-                <div className="text-sm" style={{color: colors.textSecondary}}>No current injuries</div>
+                <div className="text-3xl font-bold text-green-600">{
+                  fitnessData.status === "FIT"
+                  ? "Healthy"
+                  : fitnessData.status.charAt(0).toUpperCase() + fitnessData.status.slice(1).toLowerCase()
+                }</div>
+                <div className="text-sm" style={{color: colors.textSecondary}}>{injuryImpact?.totalInjuries == 0 ? "No current injuries" : `${injuryImpact?.totalInjuries || 0} injuries`}</div>
                   <div className="mt-2 text-sm" style={{color: colors.textSecondary}}>
-                  Last injury: {playerData.fitness.injuries[0]?.type} (Recovered)
+                  {/* Last injury: {playerData.fitness.injuries[0]?.type} (Recovered) */}
+                  {/* Last injury: {injuryImpact.lastInjury == 0 ? "No recorderd injuries" : injuryImpact.lastInjury } ({injuryImpact?.status || "Healthy" }) */}
+                  Last injury: {injuryImpact?.lastInjury || "No records"} ({injuryImpact?.status || "Healthy" })
                 </div>
               </div>
             </div>
@@ -757,11 +1100,12 @@ const PlayerDashboard = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Injury History</h3>
               <div className="space-y-4">
-                {playerData.fitness.injuries.map((injury) => (
+                {/* {playerData.fitness.injuries.map((injury) => ( */}
+                {injuryData.map((injury) => (
                   <div key={injury.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="font-medium text-gray-900">{injury.type}</h4>
+                        <h4 className="font-medium text-gray-900">{injury.injury_type}</h4>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getInjuryStatusColor(injury.status)}`}>
                           {injury.status}
                         </span>
@@ -769,21 +1113,21 @@ const PlayerDashboard = () => {
                       <div className="flex items-center space-x-4 text-sm text-gray-600">
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-3 h-3" />
-                          <span>{new Date(injury.date).toLocaleDateString()}</span>
+                          <span>{new Date(injury.date_reported).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Clock className="w-3 h-3" />
-                          <span>{injury.recoveryTime}</span>
+                          <span>{injury.recovery_days} days</span>
                         </div>
-                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                        {/* <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                           {injury.severity}
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                     <div className="flex items-center">
                       {injury.status === 'Recovered' ? (
                         <CheckCircle className="w-5 h-5 text-green-500" />
-                      ) : injury.status === 'Recovering' ? (
+                      ) : injury.status === 'RECOVERING' ? (
                         <AlertTriangle className="w-5 h-5 text-yellow-500" />
                       ) : (
                         <XCircle className="w-5 h-5 text-red-500" />
@@ -814,7 +1158,7 @@ const PlayerDashboard = () => {
                 <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>Upcoming Matches</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {playerData.upcomingMatches.map((match) => (
+                {upcomingMatches?.map((match) => (
                   <div 
                     key={match.id} 
                     className="p-3 sm:p-4 rounded-lg border relative overflow-hidden" 
@@ -832,34 +1176,39 @@ const PlayerDashboard = () => {
                     />
                     {/* Content */}
                     <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-2 sm:mb-3">
-                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>vs {match.opponent}</h4>
-                      <span 
-                        className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" 
-                        style={{ backgroundColor: nsbmGreen, color: 'white' }}
-                      >
-                        {match.type}
-                      </span>
+                    <div className="flex items-end justify-between mb-2 sm:mb-3">
+                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>vs {match.opponent.team_name}</h4>
+                        <div className="mt-3 sm:mt-4 flex items-center justify-center">
+                          <span 
+                            className="text-xs sm:text-sm px-2 sm:px-3 py-1 mx-2 rounded-full" 
+                            style={{ backgroundColor: nsbmGreen, color: 'white' }}
+                          >
+                            {match.match_type}
+                          </span>
+                          <span className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
+                            {match.status}
+                          </span>
+                        </div>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm sm:text-base mb-2" style={{ color: colors.textSecondary }}>
                       <div className="flex items-center space-x-2">
                         <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{new Date(match.date).toLocaleDateString()}</span>
+                        <span>{new Date(match.date_time).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{match.time}</span>
+                        <span>{new Date(match.date_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 mb-2 sm:mb-3 text-xs sm:text-sm" style={{ color: colors.textTertiary }}>
                       <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="truncate">{match.venue}</span>
                     </div>
-                    <div className="mt-3 sm:mt-4 flex items-center justify-center">
-                      <span className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
-                        {match.status}
-                      </span>
-                    </div>
+                      {/* <div className="mt-3 sm:mt-4 flex items-center justify-center">
+                        <span className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
+                          {match.status}
+                        </span>
+                      </div> */}
                     </div>
                   </div>
                 ))}
@@ -873,7 +1222,8 @@ const PlayerDashboard = () => {
                 <h3 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>Training Sessions</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {playerData.trainingSessions.map((session) => (
+                {/* {playerData.trainingSessions.map((session) => ( */}
+                {playerSessionWithAttendance?.map((session) => (
                   <div key={session.id} className="p-3 sm:p-4 rounded-lg border relative overflow-hidden" style={{ backgroundColor: colors.backgroundSecondary, borderColor: colors.borderLight }}>
                     {/* Faded Background Image */}
                     <div 
@@ -884,26 +1234,26 @@ const PlayerDashboard = () => {
                     />
                     {/* Content */}
                     <div className="relative z-10">
-                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
-                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>{session.type}</h4>
+                    <div className="flex items-center justify-between space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <h4 className="text-sm sm:text-base lg:text-lg font-semibold" style={{ color: colors.textPrimary }}>{session.title}</h4>
                       <span className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: nsbmGreen, color: 'white' }}>
-                        {session.attendance}
+                        {session.attendance[0].status}
                       </span>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm sm:text-base mb-2 sm:mb-3" style={{ color: colors.textSecondary }}>
                       <div className="flex items-center space-x-2">
                         <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{new Date(session.date).toLocaleDateString()}</span>
+                        <span>{new Date(session.date_time).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{session.time}</span>
+                        <span className="font-medium">{new Date(session.date_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm mb-2 sm:mb-3" style={{ color: colors.textTertiary }}>
+                    {/* <div className="flex items-center space-x-2 text-xs sm:text-sm mb-2 sm:mb-3" style={{ color: colors.textTertiary }}>
                       <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="truncate">{session.coach}</span>
-                    </div>
+                    </div> */}
                     </div>
                   </div>
                 ))}

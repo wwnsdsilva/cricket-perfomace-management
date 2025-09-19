@@ -46,7 +46,7 @@ const Login = () => {
 
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value === "MIC" ? "COACH" : value
     }));
     setError('');
   };
@@ -55,6 +55,8 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    console.log(formData);
 
     try {
       // Simulate API call delay
@@ -120,7 +122,7 @@ const Login = () => {
               console.log("navigate to admin dashboard");
               navigate('/admin/dashboard');
               break;
-            case 'MIC':
+            case 'COACH':
               navigate('/mic/dashboard');
               break;
             case 'PLAYER':
@@ -313,7 +315,7 @@ const Login = () => {
                   <select
                     id="user_role"
                     name="user_role"
-                    value={formData.user_role}
+                    value={formData.user_role == "COACH" ? "MIC" : formData.user_role}
                     onChange={handleInputChange}
                     className="w-full px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base bg-white/20 border border-white/20 rounded-lg sm:rounded-xl focus:ring-1 focus:ring-green-400/50 focus:border-green-400/50 transition-all duration-300 text-white backdrop-blur-sm"
                     required
@@ -329,11 +331,11 @@ const Login = () => {
                 <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm">
                   <div className="flex items-center space-x-2 sm:space-x-3 mb-1 sm:mb-2">
                     <div className="p-1.5 sm:p-2 rounded-lg bg-white/20">
-                {getRoleIcon(formData.user_role)}
+                        {getRoleIcon(formData.user_role == "COACH" ? "MIC" : formData.user_role)}
                     </div>
-                    <span className="text-xs sm:text-sm font-semibold text-white">{formData.user_role}</span>
+                    <span className="text-xs sm:text-sm font-semibold text-white">{formData.user_role == "COACH" ? "MIC" : formData.user_role}</span>
               </div>
-                  <p className="text-xs sm:text-sm text-white/80">{getRoleDescription(formData.user_role)}</p>
+                  <p className="text-xs sm:text-sm text-white/80">{getRoleDescription(formData.user_role == "COACH" ? "MIC" : formData.user_role)}</p>
             </div>
 
             {/* Submit Button */}
@@ -366,7 +368,7 @@ const Login = () => {
                   </div>
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/20">
                     <div className="font-semibold text-white text-xs">MIC</div>
-                    <div className="text-white/70 text-xs">mic / mic123</div>
+                    <div className="text-white/70 text-xs">MIC002 / MIC002xx</div>
                   </div>
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/20">
                     <div className="font-semibold text-white text-xs">Player</div>

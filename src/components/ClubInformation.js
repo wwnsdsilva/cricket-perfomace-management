@@ -36,8 +36,9 @@ const ClubInformation = () => {
   const clubHistory = `NSBM Cricket Club has a proud legacy of excellence and community spirit. From its humble beginnings to a modern performance-driven club, NSBM has nurtured talent and achieved milestones across university and league competitions.`;
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_id');
     navigate('/');
   };
 

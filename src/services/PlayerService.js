@@ -19,6 +19,25 @@ class PlayerService {
         });
         return await promise;
     };
+    
+    searchPlayerById = async (id) => {
+        const access_token = JSON.parse(localStorage.getItem("access_token"));
+        const promise = new Promise((resolve, reject) => {
+          axios
+            .get("player/"+id, {
+              headers: {
+                Authorization: `Bearer ${access_token}`,
+              },
+            })
+            .then((res) => {
+              return resolve(res);
+            })
+            .catch((er) => {
+              return resolve(er);
+            });
+        });
+        return await promise;
+    };
 
     getCount = async () => {
         const access_token = JSON.parse(localStorage.getItem("access_token"));

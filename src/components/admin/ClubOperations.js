@@ -24,6 +24,8 @@ import TeamService from '../../services/TeamService';
 import EventService from '../../services/EventService';
 import SessionService from '../../services/SessionService';
 import PlayerService from '../../services/PlayerService';
+import FitnessService from '../../services/FitnessService';
+import InjuryService from '../../services/InjuryService';
 
 // NSBM Brand Colors from Design System
 const { colors } = NSBM_DESIGN_SYSTEM;
@@ -34,15 +36,6 @@ const nsbmGold = colors.brandAccent;
 // Helper functions for colors with opacity
 const getNsbmGreen = (opacity = 1) => getBrandColor('brandPrimary', opacity);
 const getNsbmBlue = (opacity = 1) => getBrandColor('brandSecondary', opacity);
-
-// Sample fitness data
-const initialFitnessData = {
-  1: { sprint20m: 3.2, beepTest: 12.5, status: 'Fit (Excellent)', lastUpdated: '2024-01-15' },
-  2: { sprint20m: 3.4, beepTest: 11.8, status: 'Fit (Excellent)', lastUpdated: '2024-01-14' },
-  3: { sprint20m: 3.1, beepTest: 12.1, status: 'Recovering', lastUpdated: '2024-01-13' },
-  4: { sprint20m: 3.3, beepTest: 12.0, status: 'Fit (Excellent)', lastUpdated: '2024-01-12' },
-  5: { sprint20m: 3.5, beepTest: 11.5, status: 'Fit (Excellent)', lastUpdated: '2024-01-11' }
-};
 
 // done
 const sampleMatches = [
@@ -94,6 +87,7 @@ const sampleEvents = [
   }
 ];
 
+// done
 const sampleTrainingSchedule = [
   {
     id: 1,
@@ -151,34 +145,44 @@ const sampleTrainingSchedule = [
   }
 ];
 
+// Sample fitness data
+const initialFitnessData = {
+  1: { sprint_time: 3.2, beep_level: 12.5, status: 'Fit (Excellent)', date: '2024-01-15' },
+  2: { sprint_time: 3.4, beep_level: 11.8, status: 'Fit (Excellent)', date: '2024-01-14' },
+  3: { sprint_time: 3.1, beep_level: 12.1, status: 'Recovering', date: '2024-01-13' },
+  4: { sprint_time: 3.3, beep_level: 12.0, status: 'Fit (Excellent)', date: '2024-01-12' },
+  5: { sprint_time: 3.5, beep_level: 11.5, status: 'Fit (Excellent)', date: '2024-01-11' }
+};
+
+// done
 const sampleInjuries = [
   {
     id: 1,
     playerName: 'Monil Jason',
-    injuryType: 'Ankle Sprain',
-    dateReported: '2024-01-10',
-    recoveryDays: 14,
+    injury_type: 'Ankle Sprain',
+    date_reported: '2024-01-10',
+    recovery_days: 14,
     status: 'Recovering'
   },
   {
     id: 2,
     playerName: 'Dulaj Bandara',
-    injuryType: 'Shoulder Strain',
-    dateReported: '2024-01-08',
-    recoveryDays: 21,
+    injury_type: 'Shoulder Strain',
+    date_reported: '2024-01-08',
+    recovery_days: 21,
     status: 'Recovering'
   },
   {
     id: 3,
     playerName: 'Suviru Sathnidu',
-    injuryType: 'Knee Injury',
-    dateReported: '2024-01-05',
-    recoveryDays: 30,
+    injury_type: 'Knee Injury',
+    date_reported: '2024-01-05',
+    recovery_days: 30,
     status: 'Recovering'
   }
 ];
 
-// Sample players data for fitness management
+// Sample players data for fitness management - done
 const samplePlayers = [
   { id: 1, name: 'Maniya Silva', role: 'Batsman', photo: '/images/gallery/players/maniya.jpg', email: 'maniya@nsbm.ac.lk', phone: '+94 77 123 4567' },
   { id: 2, name: 'Dulaj Rajapaksa', role: 'All-rounder', photo: '/images/gallery/players/dulaj.jpg', email: 'dulaj@nsbm.ac.lk', phone: '+94 77 234 5678' },
@@ -217,15 +221,19 @@ const ClubOperations = () => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [editingTraining, setEditingTraining] = useState(null);
   const [attendanceFilter, setAttendanceFilter] = useState('all');
-  const [fitnessData, setFitnessData] = useState({});
+  const [fitnessData, setFitnessData] = useState([]);
   const [injuries, setInjuries] = useState([]);
   const [showInjuryModal, setShowInjuryModal] = useState(false);
   const [editingInjury, setEditingInjury] = useState(null);
   const [injuryForm, setInjuryForm] = useState({
-    playerName: '',
-    injuryType: '',
-    dateReported: '',
-    recoveryDays: ''
+    player: {
+      id: 0,
+      name: '',
+    },
+    injury_type: '',
+    date_reported: '',
+    recovery_days: '',
+    status: ''
   });
   const [matchForm, setMatchForm] = useState({
     opponent: '',
@@ -270,11 +278,14 @@ const ClubOperations = () => {
     getAllEvents();
     getAllTrainingSessionsWithAttendance();
     getAllPlayers();
+    getAllFitnessData();
+    getAllInjuries();
     // setMatches(sampleMatches);
     // setEvents(sampleEvents);
     // setTrainingSchedule(sampleTrainingSchedule);
-    setFitnessData(initialFitnessData);
-    setInjuries(sampleInjuries);
+    // setFitnessData(initialFitnessData);
+    // setInjuries(sampleInjuries);
+
   }, []);
 
 
@@ -427,9 +438,73 @@ const ClubOperations = () => {
     }
   }
 
-  const saveFitnessData = (playerId) => {
-    console.log('Saving fitness data for player:', playerId, fitnessData[playerId]);
-  };
+  // ---------- Fitness Data--------------------
+
+  const getAllFitnessData = async() => {
+    try {
+
+      let res = await FitnessService.getAll();
+      console.log(res);
+      
+      if (res.status === 200) {
+        const normalized = normalizeFitnessData(res.data.data);
+        console.log(normalized)
+        setFitnessData(normalized);
+        
+      } else {
+        alert(res.data.message)
+      }
+    } catch (err) {
+      console.error("Error fetching fitness data:", err);
+    }
+  }
+
+  const updateFitnessData = async (data, fitness_id) => {
+    let res = await FitnessService.update(data, fitness_id);
+    console.log(res);
+
+    if (res.status === 200) {
+      setFitnessData(prev =>
+        prev.map(fd =>
+          fd.fitness_id === data.fitness_id ? res.data.data : fd
+        )
+      );
+      alert(res.data.message);
+    } else {
+      alert(res.data.message);
+    }
+  }
+
+  // --------- Injury --------
+
+  const getAllInjuries = async() => {
+    try {
+      let res = await InjuryService.getAll();
+      console.log(res);
+      
+      if (res.status === 200) {
+        console.log(res.data.data)
+        setInjuries(res.data.data);
+        
+      } else {
+        alert(res.data.message)
+      }
+    } catch (err) {
+      console.error("Error fetching fitness data:", err);
+    }
+  }
+
+  const deleteInjury = async (injuryId) => {
+    let res = await InjuryService.deleteInjury(injuryId);
+    console.log(res);
+
+    if (res.status == 200) {
+      alert(res.data.message);  
+      getAllInjuries();
+    } else {
+      alert(res.response.data.message);
+    }
+  }
 
   // ----------------- HELPER methods ----------------------
 
@@ -508,6 +583,19 @@ const ClubOperations = () => {
     });
   }
 
+  const clearInjuryForm = () => {
+    setInjuryForm({
+      player: {
+        id: 0,
+        name: '',
+      },
+      injury_type: '',
+      date_reported: '',
+      recovery_days: '',
+      status: ''
+    });
+  }
+
   /* const splitDateTime = (match) => {
     // Split date_time if it exists
     let date = "";
@@ -557,18 +645,73 @@ const ClubOperations = () => {
     navigate("/admin/matches", { state: { match: updatedSelectedMatch } })
   }
 
+  const normalizeFitnessData = (data) => {
+    return data.map(item => ({
+      fitness_id: item.id,
+      player_id: item.player.id,
+      name: item.player.name,
+      email: item.player.email,
+      image_url: item.player.image_url,
+      player_role: item.player.player_role,
+      date: item.date,
+      sprint_time: item.sprint_time,
+      beep_level: item.beep_level,
+      status: item.status,
+    }));
+  };
+
+  const toNormalCase = (str) => {
+    return str
+      .toLowerCase()                // ankle_sprain
+      .replace(/_/g, " ")           // ankle sprain
+      .replace(/\b\w/g, c => c.toUpperCase()); // Ankle Sprain
+  }
+
   // ------------- handler methods - SUBMIT -------------------
 
   // Fitness management functions
   const handleFitnessInput = (playerId, field, value) => {
-    setFitnessData(prev => ({
+    /* setFitnessData(prev => ({
       ...prev,
-      [playerId]: {
-        ...prev[playerId],
-        [field]: value
-      }
-    }));
+      // [playerId]: {
+      //   ...prev[playerId],
+      //   [field]: value
+      // }
+      [field]: value
+    })); */
+
+    setFitnessData(data =>
+      data.map(record =>
+        record.player_id === playerId
+          ? { ...record, [field]: value }
+          : record
+      )
+    );
   };
+
+  const handleInjuryFormInput = (playerId, field, value) => {
+    console.log(playerId);
+    console.log(value);
+    if(field == 'name') {
+      const fPlayer = players.filter((player) => player.id == value)
+      console.log(fPlayer);
+      const updatedInjury = {
+        // ...injuryForm,
+        player: {
+          id: value,
+          name: fPlayer[0].name,
+        }
+      }
+
+      setInjuryForm((prev)=>({
+        ...prev,
+        player: {
+          id: value,
+          name: fPlayer[0].name
+        }
+      }));
+    }
+  }
 
   const handleMatchSubmit = async (e) => {
     e.preventDefault();
@@ -761,6 +904,7 @@ const ClubOperations = () => {
             training.id === editingTraining.id ? res.data.data : training
           )
         ); */
+
         setTrainingSchedule(prev =>
           prev.map(training =>
             training.id === editingTraining.id
@@ -828,29 +972,79 @@ const ClubOperations = () => {
     }
   };
 
-  // Injury management functions
-  const handleInjurySubmit = (e) => {
+  const handleInjurySubmit = async(e) => {
     e.preventDefault();
-    if (editingInjury) {
-      setInjuries(prev => prev.map(injury => 
-        injury.id === editingInjury.id ? { ...injury, ...injuryForm } : injury
-      ));
-    } else {
-      const newInjury = {
-        id: Date.now(),
-        ...injuryForm,
-        status: 'Recovering'
-      };
-      setInjuries(prev => [...prev, newInjury]);
+
+    console.log(injuryForm);
+
+    try {
+      if (editingInjury) {
+        console.log(editingInjury);
+        // === UPDATE EXISTING Injury ===
+
+        // --- Test without API integrateion---
+
+        /* setInjuries(prev => prev.map(injury => 
+          injury.id === editingInjury.id ? { ...injury, ...injuryForm } : injury
+        )); */
+
+        // ---API call-----
+
+        let res = await InjuryService.updateInjury(injuryForm, editingInjury.id);
+        console.log(res);
+  
+        if (res.status === 200) {
+          setInjuries(prev => prev.map(injury => 
+            injury.id === editingInjury.id ? res.data.data : injury
+          ));
+          alert(res.data.message);
+
+          setShowInjuryModal(false);
+          clearInjuryForm();
+          
+        } else {
+          alert(res.response.data.message);
+        }
+
+      } else {
+        // === CREATE NEW Injury === 
+
+        const newInjury = {
+          id: Date.now(),
+          ...injuryForm,
+        };
+
+        console.log(newInjury);
+
+        // --- Test without API integrateion---
+
+        // setInjuries(prev => [...prev, newInjury]);
+
+        // ---API call-----
+
+        let res = await InjuryService.saveInjury(newInjury);
+        console.log(res);
+  
+        if (res.status === 201) {
+          setInjuries(prev => [...prev, res.data.data]); 
+          alert(res.data.message);
+          
+          setShowInjuryModal(false);
+          clearInjuryForm();
+
+        } else {
+          alert(res.response.data.message);
+        }
+
+      }
+    } catch (error) {
+      console.error("Error saving injury:", error);
+      alert("Failed to save injury");
     }
+   
     setShowInjuryModal(false);
     setEditingInjury(null);
-    setInjuryForm({
-      playerName: '',
-      injuryType: '',
-      dateReported: '',
-      recoveryDays: ''
-    });
+    clearInjuryForm();
   };
 
   // ------------- handler methods - EDIT -------------------
@@ -920,6 +1114,26 @@ const ClubOperations = () => {
     setShowTrainingModal(true);
   };
   
+  const handleFitnessUpdate = (playerId) => {
+    console.log(fitnessData)
+    console.log('Saving fitness data for player:', playerId);
+    const data = fitnessData.filter((data)=> data.player_id == playerId)[0];
+    console.log(data)
+
+    const dataToUpdate = {
+      player: { id: data.player_id},
+      sprint_time: data.sprint_time,
+      beep_level: data.beep_level,
+      date: new Date().toISOString().split("T")[0], // ✅ "2025-09-15"
+      status: data.status,
+    }
+
+    console.log(dataToUpdate);
+
+    updateFitnessData(dataToUpdate, data.fitness_id);
+
+  };
+  
   const handleEditInjury = (injury) => {
     setEditingInjury(injury);
     setInjuryForm(injury);
@@ -950,7 +1164,10 @@ const ClubOperations = () => {
   };
 
   const handleDeleteInjury = (injuryId) => {
-    setInjuries(prev => prev.filter(injury => injury.id !== injuryId));
+    if (window.confirm('Are you sure you want to delete this injury record?')) {
+      // setInjuries(prev => prev.filter(injury => injury.id !== injuryId));
+      deleteInjury(injuryId);
+    }
   };
 
   // ----------- Attendance Metrics-------------
@@ -1554,49 +1771,50 @@ const ClubOperations = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <div className="text-2xl font-bold text-green-600">
-                      {Object.values(fitnessData).filter(data => data?.status === 'Healthy').length}
+                      {Object.values(fitnessData).filter(data => data?.status === 'FIT').length}
                     </div>
                     <div className="text-sm text-gray-600">Healthy Players</div>
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-lg">
                     <div className="text-2xl font-bold text-yellow-600">
-                      {Object.values(fitnessData).filter(data => data?.status === 'Recovering').length}
+                      {Object.values(fitnessData).filter(data => data?.status === 'RECOVERING').length}
                     </div>
                     <div className="text-sm text-gray-600">Recovering</div>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg">
                     <div className="text-2xl font-bold text-red-600">
-                      {Object.values(fitnessData).filter(data => data?.status === 'Injured').length}
+                      {Object.values(fitnessData).filter(data => data?.status === 'INJURED').length}
                     </div>
                     <div className="text-sm text-gray-600">Injured</div>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
-                      {Object.values(fitnessData).filter(data => data?.status === 'Rest').length}
+                      {Object.values(fitnessData).filter(data => data?.status === 'REST').length}
                     </div>
-                    <div className="text-sm text-gray-600">Rest</div>
+                    <div className="text-sm text-gray-600">On Rest</div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {samplePlayers.map((player) => (
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {players.map((player) => (
                   <div key={player.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-12 h-12 rounded-full overflow-hidden">
                         <img 
-                          src={player.photo} 
+                          // src={player.photo} 
+                          src={`${base_url}${player.image_url}`}
                           alt={player.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{player.name}</h4>
-                        <p className="text-sm text-gray-500">{player.role}</p>
+                        <p className="text-sm text-gray-500">{player.player_role}</p>
                         <p className="text-xs text-gray-400">{player.email}</p>
                       </div>
                       <button
-                        onClick={() => saveFitnessData(player.id)}
+                        onClick={() => handleFitnessUpdate(player.id)}
                         className="p-2 text-gray-400 hover:text-blue-600"
                       >
                         <Edit className="w-4 h-4" />
@@ -1610,8 +1828,8 @@ const ClubOperations = () => {
                           <input
                             type="number"
                             step="0.1"
-                            value={fitnessData[player.id]?.sprint20m || ''}
-                            onChange={(e) => handleFitnessInput(player.id, 'sprint20m', parseFloat(e.target.value))}
+                            value={fitnessData[player.id]?.sprint_time || ''}
+                            onChange={(e) => handleFitnessInput(player.id, 'sprint_time', parseFloat(e.target.value))}
                             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="0.0"
                           />
@@ -1621,8 +1839,8 @@ const ClubOperations = () => {
                           <input
                             type="number"
                             step="0.1"
-                            value={fitnessData[player.id]?.beepTest || ''}
-                            onChange={(e) => handleFitnessInput(player.id, 'beepTest', parseFloat(e.target.value))}
+                            value={fitnessData[player.id]?.beep_level || ''}
+                            onChange={(e) => handleFitnessInput(player.id, 'beep_level', parseFloat(e.target.value))}
                             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="0.0"
                           />
@@ -1633,7 +1851,7 @@ const ClubOperations = () => {
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                         <select
-                          value={fitnessData[player.id]?.status || 'Fit (Excellent)'}
+                          value={fitnessData[player.id]?.status || ''}
                           onChange={(e) => handleFitnessInput(player.id, 'status', e.target.value)}
                           className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
@@ -1646,11 +1864,94 @@ const ClubOperations = () => {
                       </div>
 
                       <div className="text-xs text-gray-500">
-                        Last updated: {fitnessData[player.id]?.lastUpdated || 'Never'}
+                        Last updated: {fitnessData[player.id]?.date || 'Never'}
                       </div>
 
                       <button
-                        onClick={() => saveFitnessData(player.id)}
+                        onClick={() => handleFitnessUpdate(player.id)}
+                        className="w-full inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700"
+                      >
+                        <Save className="w-4 h-4 mr-1" />
+                        Save Fitness Data
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div> */}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {fitnessData.map((data) => (
+                  <div key={data.player_id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden">
+                        <img 
+                          // src={player.photo} 
+                          src={`${base_url}${data.image_url}`}
+                          alt={data.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900">{data.name}</h4>
+                        <p className="text-sm text-gray-500">{data.player_role}</p>
+                        <p className="text-xs text-gray-400">{data.email}</p>
+                      </div>
+                      {/* <button
+                        onClick={() => handleFitnessUpdate(data.player_id)}
+                        className="p-2 text-gray-400 hover:text-blue-600"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button> */}
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">20m Sprint (s)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={data?.sprint_time || ''}
+                            onChange={(e) => handleFitnessInput(data.player_id, 'sprint_time', parseFloat(e.target.value))}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="0.0"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Beep Test (level)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={data?.beep_level || ''}
+                            onChange={(e) => handleFitnessInput(data.player_id, 'beep_level', parseFloat(e.target.value))}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="0.0"
+                          />
+                        </div>
+                      </div>
+
+
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                        <select
+                          value={data?.status || ''}
+                          onChange={(e) => handleFitnessInput(data.player_id, 'status', e.target.value)}
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="">Select</option>
+                          <option value="FIT">Fit (Excellent)</option>
+                          <option value="RECOVERING">Recovering</option>
+                          <option value="INJURED">Injured</option>
+                          <option value="REST">On Rest</option>
+                        </select>
+                      </div>
+
+                      <div className="text-xs text-gray-500">
+                        Last updated: {data?.date || 'Never'}
+                      </div>
+
+                      <button
+                        onClick={() => handleFitnessUpdate(data.player_id)}
                         className="w-full inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700"
                       >
                         <Save className="w-4 h-4 mr-1" />
@@ -1693,8 +1994,8 @@ const ClubOperations = () => {
                           <AlertTriangle className="w-5 h-5 text-red-600" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900">{injury.playerName}</h4>
-                          <p className="text-sm text-gray-500">{injury.injuryType}</p>
+                          <h4 className="font-medium text-gray-900">{injury.player.name}</h4>
+                          <p className="text-sm text-gray-500">{toNormalCase(injury.injury_type)}</p>
                         </div>
                       </div>
                       <div className="flex space-x-2">
@@ -1716,18 +2017,18 @@ const ClubOperations = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Date Reported:</span>
-                        <span className="font-medium">{new Date(injury.dateReported).toLocaleDateString()}</span>
+                        <span className="font-medium">{new Date(injury.date_reported).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Recovery Days:</span>
-                        <span className="font-medium">{injury.recoveryDays} days</span>
+                        <span className="font-medium">{injury.recovery_days} days</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Status:</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          injury.status === 'Recovering' 
+                          injury.status === 'RECOVERING' 
                             ? 'bg-yellow-100 text-yellow-800' 
-                            : injury.status === 'Recovered'
+                            : injury.status === 'RECOVERED'
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
@@ -2275,6 +2576,7 @@ const ClubOperations = () => {
                 onClick={() => {
                   setShowInjuryModal(false);
                   setEditingInjury(null);
+                  clearInjuryForm();
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -2287,28 +2589,89 @@ const ClubOperations = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Player Name *
                 </label>
-                <input
+                {/* <input
                   type="text"
                   value={injuryForm.playerName}
                   onChange={(e) => setInjuryForm(prev => ({ ...prev, playerName: e.target.value }))}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter player name"
-                />
+                /> */}
+                <select
+                  value={injuryForm.player.id}
+                  // onChange={(e) => setInjuryForm(prev => ({ ...prev, player: {id: e.target.value} }))}
+                  onChange={(e) => handleInjuryFormInput(injuryForm.player.id, 'name', e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl transition-all duration-200 focus:outline-none"
+                  style={{
+                    borderColor: colors.borderLight,
+                    backgroundColor: colors.backgroundSecondary,
+                    color: colors.textPrimary
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = nsbmGreen;
+                    e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = colors.borderLight;
+                    e.target.
+                    style.boxShadow = 'none';
+                  }}
+                  required
+                >
+                  <option value="">Select</option>
+                  {players.map(player => (
+                    <option key={player.id} value={player.id}>{player.name}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Injury Type *
                 </label>
-                <input
+                {/* <input
                   type="text"
-                  value={injuryForm.injuryType}
-                  onChange={(e) => setInjuryForm(prev => ({ ...prev, injuryType: e.target.value }))}
+                  value={injuryForm.injury_type}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, injury_type: e.target.value }))}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., Ankle Sprain, Shoulder Strain"
-                />
+                /> */}
+                <select
+                  value={injuryForm.injury_type}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, injury_type: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl transition-all duration-200 focus:outline-none"
+                  style={{
+                    borderColor: colors.borderLight,
+                    backgroundColor: colors.backgroundSecondary,
+                    color: colors.textPrimary
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = nsbmGreen;
+                    e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = colors.borderLight;
+                    e.target.style.boxShadow = 'none';
+                  }}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="HAMSTRING_STRAIN">Hamstring Strain</option>
+                  <option value="GROIN_STRAIN">Groin Strain</option>
+                  <option value="SIDE_STRAIN">Side Strain</option>
+                  <option value="SHOULDER_INJURY">Shoulder Injury</option>
+                  <option value="ELBOW_TENDONITIS">Elbow Tendonitis</option>
+                  <option value="WRIST_SPRAIN">Wrist Sprain</option>
+                  <option value="FINGER_FRACTURE">Finger Fracture</option>
+                  <option value="CONCUSSION">Concussion</option>
+                  <option value="STRESS_FRACTURE">Stress Fracture</option>
+                  <option value="ANKLE_SPRAIN">Ankle Sprain</option>
+                  <option value="KNEE_LIGAMENT_INJURY">Knee Ligament Injury</option>
+                  <option value="ACHILLES_RUPTURE">Achilles Rupture</option>
+                  <option value="BLISTERS">Blisters</option>
+                  <option value="OTHER">Other</option>
+                </select>
               </div>
 
               <div>
@@ -2317,8 +2680,8 @@ const ClubOperations = () => {
                 </label>
                 <input
                   type="date"
-                  value={injuryForm.dateReported}
-                  onChange={(e) => setInjuryForm(prev => ({ ...prev, dateReported: e.target.value }))}
+                  value={injuryForm.date_reported}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, date_reported: e.target.value }))}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -2331,12 +2694,42 @@ const ClubOperations = () => {
                 <input
                   type="number"
                   min="1"
-                  value={injuryForm.recoveryDays}
-                  onChange={(e) => setInjuryForm(prev => ({ ...prev, recoveryDays: parseInt(e.target.value) }))}
+                  value={injuryForm.recovery_days}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, recovery_days: parseInt(e.target.value) }))}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Expected recovery days"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status *
+                </label>
+                <select
+                  value={injuryForm.status}
+                  onChange={(e) => setInjuryForm(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl transition-all duration-200 focus:outline-none"
+                  style={{
+                    borderColor: colors.borderLight,
+                    backgroundColor: colors.backgroundSecondary,
+                    color: colors.textPrimary
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = nsbmGreen;
+                    e.target.style.boxShadow = `0 0 0 2px ${getNsbmGreen(0.2)}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = colors.borderLight;
+                    e.target.style.boxShadow = 'none';
+                  }}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="INJURED">Injured</option>
+                  <option value="RECOVERING">Recovering</option>
+                  <option value="RECOVERED">Recovered</option>
+                </select>
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">
@@ -2345,6 +2738,7 @@ const ClubOperations = () => {
                   onClick={() => {
                     setShowInjuryModal(false);
                     setEditingInjury(null);
+                    clearInjuryForm();
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >

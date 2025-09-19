@@ -83,18 +83,14 @@ const MatchDataEntry = () => {
 
   const [matches, setMatches] = useState([]); // all matches fetched from BE
   const [filteredMatches, setFilteredMatches] = useState([]); // filtered results
-  // const [searchFilters, setSearchFilters] = useState({
-  //   opponent: {id:0},
-  //   date_time: '',
-  //   venue: '',
-  //   match_type: ''
-  // });
+  const [matchStats, setMatchStats] = useState({});
 
   useEffect(() => {
     populateMatchDataEntryFields();
     getAllPlayers();
     getAllMatches();
     fetchOpponents();
+    getAllMatchStats(matchEntry.id);
   }, []);
 
   /* useEffect(() => {
@@ -207,6 +203,28 @@ const MatchDataEntry = () => {
     }));
   }, [battingData, bowlingData]);
 
+  useEffect(()=>{
+    if(matchEntry) {
+      console.log("Found match entry");
+      console.log(matchEntry);
+      console.log(matchStats);
+
+      // Usage
+      const { battingStats, bowlingStats, fieldingStats } = setThreeMatchStats();
+
+      console.log("Batting:", battingStats);
+      console.log("Bowling:", bowlingStats);
+      console.log("Fielding:", fieldingStats);
+
+      if(battingStats != []) setBattingData(battingStats) /* || setBattingData([]) */;
+      if(bowlingStats != []) setBowlingData(bowlingStats) /* || setBowlingData([]) */;
+      if(fieldingStats != []) setFieldingData(fieldingStats) /* || setFieldingData([]) */;
+
+    } else {
+      console.log("No match entry");
+    }
+  },[matchStats])
+
   const populateMatchDataEntryFields = () => {
     if(matchEntry) {
       // Split date_time into date and time
@@ -312,6 +330,59 @@ const MatchDataEntry = () => {
     }
   };
 
+  const getAllMatchStats = async(matchId) => {
+    try {
+      let res = await MatchService.getAllMatchStats(matchId);
+      console.log(res);
+  
+      if (res.status == 200) {
+        console.log(res.data.data);
+        setMatchStats(res.data.data);
+      } else {
+        alert(res.response.data.message);
+      }
+  
+    } catch (error) {
+      alert("Error fetching match stats:", error)
+    }
+  }
+
+  const setThreeMatchStats = () => {
+    // Extract arrays directly
+    const battingStats = matchStats?.batting_stats?.map(b => ({
+      id: b.id,
+      player_id: b.player_id,
+      // name: `${b.first_name} ${b.last_name}`,
+      runs: b.runs,
+      balls_faced: b.balls_faced,
+      fours: b.fours,
+      sixes: b.sixes,
+      dismissal_type: b.dismissal_type,
+      strike_rate: parseFloat(b.strike_rate)
+    })) || [];
+
+    const bowlingStats = matchStats?.bowling_stats?.map(b => ({
+      id: b.id,
+      player_id: b.player_id,
+      overs: b.overs,
+      balls_bowled: b.balls_bowled,
+      runs_conceded: b.runs_conceded,
+      wickets: b.wickets,
+      economy_rate: parseFloat(b.economy_rate)
+    })) || [];
+
+    const fieldingStats = matchStats?.fielding_stats?.map(f => ({
+      id: f.id,
+      player_id: f.player_id,
+      catches: f.catches,
+      direct_run_outs: f.direct_run_outs,
+      assisted_run_outs: f.assisted_run_outs,
+      stumpings: f.stumpings,
+    })) || [];
+
+    return { battingStats, bowlingStats, fieldingStats };
+  }
+
  /*  const handleFilterChange = (field, value) => {
     setSearchFilters(prev => ({ ...prev, [field]: value }));
   }; */
@@ -358,7 +429,7 @@ const MatchDataEntry = () => {
       maidens: 0,
       runs_conceded: 0,
       wickets: 0,
-      economy: 0,
+      economy_rate: 0,
       // wides: 0,
       // noBalls: 0
     };
@@ -417,7 +488,7 @@ const MatchDataEntry = () => {
       if (entry.id === id) {
         const updated = { ...entry, [field]: value };
         if (field === 'runs_conceded' || field === 'overs') {
-          updated.economy = updated.overs > 0 ? (updated.runs_conceded / updated.overs).toFixed(2) : 0;
+          updated.economy_rate = updated.overs > 0 ? (updated.runs_conceded / updated.overs).toFixed(2) : 0;
         }
         return updated;
       }
@@ -568,7 +639,7 @@ const MatchDataEntry = () => {
             entry.maidens,
             entry.runs_conceded,
             entry.wickets,
-            entry.economy,
+            entry.economy_rate,
             // entry.wides,
             // entry.noBalls
           ])
@@ -1498,7 +1569,7 @@ const MatchDataEntry = () => {
                     <tr>
                       <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Player</th>
                       <th className="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Overs</th>
-                      <th className="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Maidens</th>
+                      {/* <th className="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Maidens</th> */}
                       <th className="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Runs</th>
                       <th className="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Wickets</th>
                       <th className="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider border-r" style={{color: 'white', backgroundColor: nsbmGreen, borderColor: getNsbmGreen(0.3)}}>Economy</th>
@@ -1508,7 +1579,7 @@ const MatchDataEntry = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y" style={{borderColor: colors.borderLight}}>
-                    {bowlingData.map((entry, index) => (
+                    {bowlingData?.map((entry, index) => (
                       <tr 
                         key={entry.id}
                         className={`transition-all duration-200 hover:shadow-md ${
@@ -1570,7 +1641,7 @@ const MatchDataEntry = () => {
                             }}
                           />
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        {/* <td className="px-6 py-4 text-center">
                           <input
                             type="number"
                             value={entry.maidens}
@@ -1590,7 +1661,7 @@ const MatchDataEntry = () => {
                               e.target.style.boxShadow = 'none';
                             }}
                           />
-                        </td>
+                        </td> */}
                         <td className="px-6 py-4 text-center">
                           <input
                             type="number"
@@ -1634,7 +1705,7 @@ const MatchDataEntry = () => {
                           />
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <span className="text-sm font-semibold" style={{color: nsbmGreen}}>{entry.economy}</span>
+                          <span className="text-sm font-semibold" style={{color: nsbmGreen}}>{entry.economy_rate.toFixed(2)}</span>
                         </td>
                         {/* <td className="px-6 py-4 text-center">
                           <input
@@ -1766,7 +1837,7 @@ const MatchDataEntry = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y" style={{borderColor: colors.borderLight}}>
-                    {fieldingData.map((entry, index) => (
+                    {fieldingData?.map((entry, index) => (
                       <tr 
                         key={entry.id}
                         className={`transition-all duration-200 hover:shadow-md ${

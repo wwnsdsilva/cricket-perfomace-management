@@ -17,6 +17,11 @@ import PlayerService from '../../services/PlayerService';
 import SessionService from '../../services/SessionService';
 import InjuryService from '../../services/InjuryService';
 import EventService from '../../services/EventService';
+import BattingService from '../../services/BattingService';
+import BowlingService from '../../services/BowlingService';
+import FieldingService from '../../services/FieldingService';
+import PerformanceService from '../../services/PerformanceService';
+import MatchService from '../../services/MatchService';
 
 // NSBM Brand Colors from Design System
 const { colors } = NSBM_DESIGN_SYSTEM;
@@ -25,6 +30,157 @@ const nsbmGreen = colors.brandPrimary;
 const nsbmBlue = colors.brandSecondary;
 const nsbmGold = colors.brandAccent;
 
+const base_url = "http://localhost:8080/unicricket360";
+
+ // Sample data
+ const samplePlayers = [
+  { player_id: 1, player_name: 'Monil Jason', total_runs: 1250, total_wickets: 5, matches_batted: 15, batting_average: 45.2, image_url: '/images/gallery/players/maniya.jpg' },
+  { player_id: 2, player_name: 'Dulaj Bandara', total_runs: 890, total_wickets: 28, matches_batted: 12, batting_average: 32.1, image_url: '/images/gallery/players/dulaj.jpg' },
+  { player_id: 3, player_name: 'Suviru Sathnidu', total_runs: 1100, total_wickets: 15, matches_batted: 18, batting_average: 38.9, image_url: '/images/gallery/players/suviru.jpg' },
+  { player_id: 4, player_name: 'Lahiru Abhesinghe', total_runs: 750, total_wickets: 8, matches_batted: 14, batting_average: 28.6, image_url: '/images/gallery/players/lahiru.jpeg' },
+  { player_id: 5, player_name: 'Asitha Wanninayake', total_runs: 650, total_wickets: 2, matches_batted: 16, batting_average: 25.0, image_url: '/images/gallery/players/asitha.jpeg' },
+  { player_id: 6, player_name: 'Maneendra Jayathilaka', total_runs: 950, total_wickets: 12, matches_batted: 13, batting_average: 35.8, image_url: '/images/gallery/players/maniya.jpg' },
+  { player_id: 7, player_name: 'Dilhara Polgampola', total_runs: 800, total_wickets: 18, matches_batted: 11, batting_average: 30.2, image_url: '/images/gallery/players/lahiru.jpeg' },
+  { player_id: 8, player_name: 'Dinesh Pethiyagoda', total_runs: 700, total_wickets: 6, matches_batted: 10, batting_average: 28.0, image_url: '/images/gallery/players/asitha.jpeg' },
+  { player_id: 9, player_name: 'Pathum Perera', total_runs: 600, total_wickets: 4, matches_batted: 9, batting_average: 25.5, image_url: '/images/gallery/players/dulaj.jpg' }
+];
+
+const recentMatchess = [
+  {
+    id: 1,
+    opponent: 'APIIT',
+    date: '2024-01-08',
+    result: 'Win',
+    score: '245/8 (50) vs 198/10 (45.2)',
+    type: 'T20'
+  },
+  {
+    id: 2,
+    opponent: 'KDU',
+    date: '2024-01-05',
+    result: 'Loss',
+    score: '180/10 (42) vs 185/6 (38.5)',
+    type: 'T10'
+  },
+  {
+    id: 3,
+    opponent: 'SLIIT',
+    date: '2024-01-02',
+    result: 'Draw',
+    score: '220/8 (50) vs 220/9 (50)',
+    type: 'T20'
+  }
+];
+
+const upcomingMatchess = [
+  {
+    id: 1,
+    opponent: 'IIT',
+    date: '2024-01-15',
+    time: '14:00',
+    venue: 'Central Ground',
+    type: 'T20'
+  },
+  {
+    id: 2,
+    opponent: 'SLTC',
+    date: '2024-01-18',
+    time: '10:00',
+    venue: 'Hillside Park',
+    type: 'T10'
+  },
+  {
+    id: 3,
+    opponent: 'NSBM',
+    date: '2024-01-22',
+    time: '15:30',
+    venue: 'Lakeside Ground',
+    type: 'T20'
+  }
+];
+
+const clubEventss = [
+  {
+    id: 1,
+    event_title: 'Annual Cricket Awards Night',
+    date_time: '2024-02-15T14:30:00',
+    image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
+    is_featured: true
+  },
+  {
+    id: 2,
+    event_title: 'Training Camp',
+    date_time: '2024-03-10',
+    image_url: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop',
+    is_featured: false
+  },
+  {
+    id: 3,
+    event_title: 'Fundraising Event',
+    date_time: '2024-03-20',
+    image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
+    is_featured: true
+  },
+  {
+    id: 4,
+    event_title: 'Championship Victory',
+    date_time: '2024-02-15',
+    image_url: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop',
+    is_featured: false
+  }
+];
+
+const topFieldersData = [
+  { 
+    player_name: 'Maneendra Jayathilaka', 
+    catches: 15, 
+    stumpings: 4, 
+    runOuts: 3, 
+    total: 22, 
+    avatar: '/images/gallery/players/maniya.jpg' 
+  },
+  { 
+    player_name: 'Monil Jason', 
+    catches: 12, 
+    stumpings: 2, 
+    runOuts: 4, 
+    total: 18, 
+    avatar: '/images/gallery/players/dulaj.jpg' 
+  },
+  { 
+    player_name: 'Suviru Sathnidu', 
+    catches: 10, 
+    stumpings: 1, 
+    runOuts: 5, 
+    total: 16, 
+    avatar: '/images/gallery/players/suviru.jpg' 
+  },
+  { 
+    player_name: 'Dilhara Polgampola', 
+    catches: 8, 
+    stumpings: 0,
+    runOuts: 6, 
+    total: 14,
+    avatar: '/images/gallery/players/lahiru.jpeg'
+  },
+  { 
+    player_name: 'Dulaj Bandara', 
+    catches: 7, 
+    stumpings: 1, 
+    runOuts: 4, 
+    total: 12,
+    avatar: '/images/gallery/players/asitha.jpeg'
+  }
+];
+
+/* const topBatsmen = samplePlayers
+.sort((a, b) => b.total_runs - a.total_runs)
+.slice(0, 5);
+
+const topBowlers = samplePlayers
+  .filter(p => p.total_wickets > 0)
+  .sort((a, b) => b.total_wickets - a.total_wickets)
+  .slice(0, 5); */
 
 const AdminDashboard = () => {
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
@@ -37,148 +193,12 @@ const AdminDashboard = () => {
   });
 
   const [clubEvents, setClubEvents] = useState([]);
-
-  // Sample data
-  const samplePlayers = [
-    { id: 1, name: 'Monil Jason', runs: 1250, wickets: 5, matches: 15, average: 45.2, photo: '/images/gallery/players/maniya.jpg' },
-    { id: 2, name: 'Dulaj Bandara', runs: 890, wickets: 28, matches: 12, average: 32.1, photo: '/images/gallery/players/dulaj.jpg' },
-    { id: 3, name: 'Suviru Sathnidu', runs: 1100, wickets: 15, matches: 18, average: 38.9, photo: '/images/gallery/players/suviru.jpg' },
-    { id: 4, name: 'Lahiru Abhesinghe', runs: 750, wickets: 8, matches: 14, average: 28.6, photo: '/images/gallery/players/lahiru.jpeg' },
-    { id: 5, name: 'Asitha Wanninayake', runs: 650, wickets: 2, matches: 16, average: 25.0, photo: '/images/gallery/players/asitha.jpeg' },
-    { id: 6, name: 'Maneendra Jayathilaka', runs: 950, wickets: 12, matches: 13, average: 35.8, photo: '/images/gallery/players/maniya.jpg' },
-    { id: 7, name: 'Dilhara Polgampola', runs: 800, wickets: 18, matches: 11, average: 30.2, photo: '/images/gallery/players/lahiru.jpeg' },
-    { id: 8, name: 'Dinesh Pethiyagoda', runs: 700, wickets: 6, matches: 10, average: 28.0, photo: '/images/gallery/players/asitha.jpeg' },
-    { id: 9, name: 'Pathum Perera', runs: 600, wickets: 4, matches: 9, average: 25.5, photo: '/images/gallery/players/dulaj.jpg' }
-  ];
-
-  const recentMatches = [
-    {
-      id: 1,
-      opponent: 'APIIT',
-      date: '2024-01-08',
-      result: 'Win',
-      score: '245/8 (50) vs 198/10 (45.2)',
-      type: 'T20'
-    },
-    {
-      id: 2,
-      opponent: 'KDU',
-      date: '2024-01-05',
-      result: 'Loss',
-      score: '180/10 (42) vs 185/6 (38.5)',
-      type: 'T10'
-    },
-    {
-      id: 3,
-      opponent: 'SLIIT',
-      date: '2024-01-02',
-      result: 'Draw',
-      score: '220/8 (50) vs 220/9 (50)',
-      type: 'T20'
-    }
-  ];
-
-  const upcomingMatches = [
-    {
-      id: 1,
-      opponent: 'IIT',
-      date: '2024-01-15',
-      time: '14:00',
-      venue: 'Central Ground',
-      type: 'T20'
-    },
-    {
-      id: 2,
-      opponent: 'SLTC',
-      date: '2024-01-18',
-      time: '10:00',
-      venue: 'Hillside Park',
-      type: 'T10'
-    },
-    {
-      id: 3,
-      opponent: 'NSBM',
-      date: '2024-01-22',
-      time: '15:30',
-      venue: 'Lakeside Ground',
-      type: 'T20'
-    }
-  ];
-
-  const clubEventss = [
-    {
-      id: 1,
-      event_title: 'Annual Cricket Awards Night',
-      date_time: '2024-02-15T14:30:00',
-      image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
-      is_featured: true
-    },
-    {
-      id: 2,
-      event_title: 'Training Camp',
-      date_time: '2024-03-10',
-      image_url: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop',
-      is_featured: false
-    },
-    {
-      id: 3,
-      event_title: 'Fundraising Event',
-      date_time: '2024-03-20',
-      image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=200&fit=crop',
-      is_featured: true
-    },
-    {
-      id: 4,
-      event_title: 'Championship Victory',
-      date_time: '2024-02-15',
-      image_url: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=200&fit=crop',
-      is_featured: false
-    }
-  ];
-
-  const topFieldersData = [
-    { 
-      name: 'Maneendra Jayathilaka', 
-      catches: 15, 
-      stumpings: 4, 
-      runOuts: 3, 
-      total: 22, 
-      avatar: '/images/gallery/players/maniya.jpg' 
-    },
-    { 
-      name: 'Monil Jason', 
-      catches: 12, 
-      stumpings: 2, 
-      runOuts: 4, 
-      total: 18, 
-      avatar: '/images/gallery/players/dulaj.jpg' 
-    },
-    { 
-      name: 'Suviru Sathnidu', 
-      catches: 10, 
-      stumpings: 1, 
-      runOuts: 5, 
-      total: 16, 
-      avatar: '/images/gallery/players/suviru.jpg' 
-    },
-    { 
-      name: 'Dilhara Polgampola', 
-      catches: 8, 
-      stumpings: 0,
-      runOuts: 6, 
-      total: 14,
-      avatar: '/images/gallery/players/lahiru.jpeg'
-    },
-    { 
-      name: 'Dulaj Bandara', 
-      catches: 7, 
-      stumpings: 1, 
-      runOuts: 4, 
-      total: 12,
-      avatar: '/images/gallery/players/asitha.jpeg'
-    }
-  ];
-
+  const [topBatters, setTopBatters] = useState([]);
+  const [topBowlers, setTopBowlers] = useState([]);
+  const [topFielders, setTopFielders] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [upcomingMatches, setUpcomingMatches] = useState([]);
+  const [recentMatches, setRecentMatches] = useState([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -194,6 +214,10 @@ const AdminDashboard = () => {
     getSessionsCount();
     getInjuriesCount();
     getClubEvents();
+    getTopBatters();
+    getTopBowlers();
+    getTopFielders();
+    getAllMatches();
   }, []);
 
 
@@ -264,15 +288,112 @@ const AdminDashboard = () => {
     }
   };
 
-  const topBatsmen = samplePlayers
-    .sort((a, b) => b.runs - a.runs)
-    .slice(0, 5);
+  const getTopBatters = async () => {
+    try {
+      const res = await PerformanceService.getTopBatters();
+      console.log(res);
 
-  const topBowlers = samplePlayers
-    .filter(p => p.wickets > 0)
-    .sort((a, b) => b.wickets - a.wickets)
-    .slice(0, 5);
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setTopBatters(res.data.data); 
+        } else {
+          alert(res.data.message)
+          setTopBatters([]); 
+        }
+      } else {
+        console.error("Failed to fetch top batters");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching top batters: ", error);
+    }
+  };
+  
+  const getTopBowlers = async () => {
+    try {
+      const res = await PerformanceService.getTopBowlers();
+      console.log(res);
 
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setTopBowlers(res.data.data);
+        } else {
+          alert(res.data.message)
+          setTopBowlers([]);
+        }
+      } else {
+        console.error("Failed to fetch top bowlers");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching top bowlers: ", error);
+    }
+  };
+  
+  const getTopFielders = async () => {
+    try {
+      const res = await PerformanceService.getTopFielders();
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setTopFielders(res.data.data);
+        } else {
+          alert(res.data.message)
+          setTopFielders([]);
+        }
+      } else {
+        console.error("Failed to fetch top fielders");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching top fielders: ", error);
+    }
+  };
+  
+  const getAllMatches = async () => {
+    try {
+      const res = await MatchService.getAll();
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setMatches(res.data.data);
+
+          // filter upcoming matches
+          const upcoming = res.data.data.filter((match)=> match.status === "UPCOMING")
+          setUpcomingMatches(upcoming);
+
+          // filter recent matches (last 3 completed)
+          const recent = res.data.data
+          .filter((match) => match.status === "COMPLETED")
+          .sort(
+            (a, b) => new Date(b.date_time) - new Date(a.date_time) // latest first
+          )
+          .slice(0, 3); // take only last 3
+
+          setRecentMatches(recent);
+
+        } else {
+          alert(res.data.message)
+          setMatches([]);
+        }
+      } else {
+        console.error("Failed to fetch matches");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching matches: ", error);
+    }
+  };
 
   const nextEvent = () => {
     setCurrentEventIndex((prev) => (prev + 1) % clubEvents.length);
@@ -304,7 +425,7 @@ const AdminDashboard = () => {
             <NSBMKPITile
               title="Total Players"
               value={auditData.totalPlayers}
-              trend={2.3}
+              // trend={2.3}
               icon={Users}
               className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
               style={{borderLeftColor: nsbmGreen, backgroundColor: `${nsbmGreen}10`}}
@@ -312,7 +433,7 @@ const AdminDashboard = () => {
             <NSBMKPITile
               title="Active Sessions"
               value={auditData.activeSessions}
-              trend={-1.2}
+              // trend={-1.2}
               icon={Activity}
               className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
               style={{borderLeftColor: nsbmBlue, backgroundColor: `${nsbmBlue}10`}}
@@ -320,7 +441,7 @@ const AdminDashboard = () => {
             <NSBMKPITile
               title="Injuries"
               value={auditData.injuries}
-              trend={-0.5}
+              // trend={-0.5}
               icon={Target}
               className="border-l-4 shadow-lg transform hover:scale-105 transition-all duration-200"
               style={{borderLeftColor: colors.error, backgroundColor: `${colors.error}10`}}
@@ -362,7 +483,7 @@ const AdminDashboard = () => {
             {clubEvents.length > 0 && (
               <div className="relative h-64 group">
                 <img 
-                  src={`http://localhost:8080/unicricket360${clubEvents[currentEventIndex].image_url}`}
+                  src={`${base_url}${clubEvents[currentEventIndex].image_url}`}
                   // src={clubEvents[currentEventIndex].image_url} 
                   alt={clubEvents[currentEventIndex].event_title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -415,8 +536,8 @@ const AdminDashboard = () => {
               <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
                 <NSBMSectionHeader icon={Trophy} title="Top Batsmen" />
                 <div className="space-y-3">
-                  {topBatsmen.map((player, index) => (
-                    <NSBMCard key={player.id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
+                  {topBatters.map((player, index) => (
+                    <NSBMCard key={player.player_id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
                       <div 
                         className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
                         style={{background: `linear-gradient(135deg, ${nsbmGreen}, ${nsbmGreen}CC)`}}
@@ -425,17 +546,20 @@ const AdminDashboard = () => {
                       </div>
                       <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-green-300/50 transition-all duration-200">
                         <img 
-                          src={player.photo} 
-                          alt={player.name}
+                          // src={player.photo} 
+                          src={`${base_url}${player.image_url}`}
+                          alt={player.player_name}
                           className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium group-hover/item:text-green-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.name}</p>
-                        <p className="text-sm" style={{color: colors.textSecondary}}>{player.runs} runs</p>
+                        <p className="font-medium group-hover/item:text-green-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.player_name}</p>
+                        <p className="text-sm" style={{color: colors.textSecondary}}>{player.total_runs} runs</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.average}</p>
+                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>
+                          {player.batting_average != null ? Number(player.batting_average).toFixed(2) : "0.00"}
+                        </p>
                         <p className="text-xs" style={{color: colors.textMuted}}>Avg</p>
                       </div>
                     </NSBMCard>
@@ -448,7 +572,7 @@ const AdminDashboard = () => {
                 <NSBMSectionHeader icon={Target} title="Top Bowlers" />
                 <div className="space-y-3">
                   {topBowlers.map((player, index) => (
-                    <NSBMCard key={player.id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
+                    <NSBMCard key={player.player_id} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
                       <div 
                         className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
                         style={{background: `linear-gradient(135deg, ${nsbmBlue}, ${nsbmBlue}CC)`}}
@@ -457,17 +581,18 @@ const AdminDashboard = () => {
                       </div>
                       <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-blue-300/50 transition-all duration-200">
                         <img 
-                          src={player.photo} 
-                          alt={player.name}
+                          // src={player.photo} 
+                          src={`${base_url}${player.image_url}`}
+                          alt={player.player_name}
                           className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium group-hover/item:text-blue-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.name}</p>
-                        <p className="text-sm" style={{color: colors.textSecondary}}>{player.wickets} wickets</p>
+                        <p className="font-medium group-hover/item:text-blue-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.player_name}</p>
+                        <p className="text-sm" style={{color: colors.textSecondary}}>{player.total_wickets} wickets</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.average}</p>
+                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{(player.bowling_average).toFixed(2)}</p>
                         <p className="text-xs" style={{color: colors.textMuted}}>Avg</p>
                       </div>
                     </NSBMCard>
@@ -479,8 +604,8 @@ const AdminDashboard = () => {
               <NSBMCard className="p-6 group hover:shadow-xl transition-all duration-300" elevated>
                 <NSBMSectionHeader icon={Target} title="Top Fielders" />
                 <div className="space-y-3">
-                  {topFieldersData.map((fielder, index) => (
-                    <NSBMCard key={fielder.name} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
+                  {topFielders.map((player, index) => (
+                    <NSBMCard key={player.player_name} className="flex items-center space-x-3 p-3 hover:shadow-md transition-all duration-200 group/item" variant="secondary">
                       <div 
                         className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover/item:scale-110 transition-transform duration-200"
                         style={{background: `linear-gradient(135deg, ${nsbmGold}, ${nsbmGold}CC)`}}
@@ -489,16 +614,17 @@ const AdminDashboard = () => {
               </div>
                       <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 group-hover/item:ring-4 group-hover/item:ring-yellow-300/50 transition-all duration-200">
                         <img 
-                          src={fielder.avatar} 
-                          alt={fielder.name}
+                          // src={player.avatar} 
+                          src={`${base_url}${player.image_url}`}
+                          alt={player.player_name}
                           className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-200"
                         />
               </div>
                     <div className="flex-1">
-                        <p className="font-medium group-hover/item:text-yellow-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{fielder.name}</p>
+                        <p className="font-medium group-hover/item:text-yellow-600 transition-colors duration-200" style={{color: colors.textPrimary}}>{player.player_name}</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{fielder.total}</p>
+                        <p className="text-sm font-medium" style={{color: colors.textPrimary}}>{player.total_dismissals}</p>
                         <p className="text-xs" style={{color: colors.textMuted}}>Dismissals</p>
                     </div>
                     </NSBMCard>
@@ -514,17 +640,19 @@ const AdminDashboard = () => {
               {upcomingMatches.map((match) => (
                 <NSBMCard key={match.id} className="p-4 hover:shadow-lg hover:scale-105 transition-all duration-200 group/match" variant="secondary">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium group-hover/match:text-green-600 transition-colors duration-200" style={{color: colors.textPrimary}}>vs {match.opponent}</h4>
-                    <NSBMBadge variant="primary" size="sm" className="group-hover/match:scale-110 transition-transform duration-200">{match.type}</NSBMBadge>
+                    <h4 className="font-medium group-hover/match:text-green-600 transition-colors duration-200" style={{color: colors.textPrimary}}>vs {match.opponent.team_name}</h4>
+                    <NSBMBadge variant="primary" size="sm" className="group-hover/match:scale-110 transition-transform duration-200">{match.match_type}</NSBMBadge>
                   </div>
                   <div className="flex items-center space-x-4 text-sm" style={{color: colors.textSecondary}}>
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-3 h-3 group-hover/match:scale-110 transition-transform duration-200" style={{color: nsbmGreen}} />
-                      <span>{new Date(match.date).toLocaleDateString()}</span>
+                      {/* <span>{new Date(match.date).toLocaleDateString()}</span> */}
+                      <span>{new Date(match.date_time).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-3 h-3 group-hover/match:scale-110 transition-transform duration-200" style={{color: nsbmGreen}} />
-                      <span>{match.time}</span>
+                      {/* <span>{match.time}</span> */}
+                      <span>{new Date(match.date_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-1 mt-2 text-xs" style={{color: colors.textMuted}}>
@@ -543,23 +671,23 @@ const AdminDashboard = () => {
               {recentMatches.map((match) => (
                 <NSBMCard key={match.id} className="p-4 hover:shadow-lg hover:scale-105 transition-all duration-200 group/match" variant="secondary">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium group-hover/match:text-blue-600 transition-colors duration-200" style={{color: colors.textPrimary}}>vs {match.opponent}</h4>
+                    <h4 className="font-medium group-hover/match:text-blue-600 transition-colors duration-200" style={{color: colors.textPrimary}}>vs {match.opponent.team_name}</h4>
                     <div className="flex items-center space-x-2">
-                      <NSBMBadge variant="primary" size="sm" className="group-hover/match:scale-110 transition-transform duration-200">{match.type}</NSBMBadge>
+                      <NSBMBadge variant="primary" size="sm" className="group-hover/match:scale-110 transition-transform duration-200">{match.match_type}</NSBMBadge>
                       <NSBMBadge 
-                        variant={match.result === 'Win' ? 'success' : match.result === 'Loss' ? 'error' : 'default'}
+                        variant={match.result === 'WIN' ? 'success' : match.result === 'LOSS' ? 'error' : 'default'}
                         size="sm"
                         className="group-hover/match:scale-110 transition-transform duration-200"
                       >
                         {match.result}
                       </NSBMBadge>
                     </div>
-              </div>
+                  </div>
                   <p className="text-sm mb-2" style={{color: colors.textSecondary}}>{match.score}</p>
                   <div className="flex items-center space-x-1 text-xs" style={{color: colors.textMuted}}>
                     <Calendar className="w-3 h-3 group-hover/match:scale-110 transition-transform duration-200" style={{color: nsbmGreen}} />
-                    <span>{new Date(match.date).toLocaleDateString()}</span>
-            </div>
+                    <span>{new Date(match.date_time).toLocaleDateString()}</span>
+                  </div>
                 </NSBMCard>
               ))}
             </div>

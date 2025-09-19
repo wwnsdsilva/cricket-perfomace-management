@@ -39,7 +39,7 @@ function App() {
           <Route 
             path="/mic/dashboard" 
             element={
-              <ProtectedRoute requiredRole="MIC">
+              <ProtectedRoute requiredRole="COACH">
                 <MICDashboard />
               </ProtectedRoute>
             } 
@@ -47,7 +47,7 @@ function App() {
           <Route 
             path="/player/dashboard" 
             element={
-              <ProtectedRoute requiredRole="Player">
+              <ProtectedRoute requiredRole="PLAYER">
                 <PlayerDashboard />
               </ProtectedRoute>
             } 

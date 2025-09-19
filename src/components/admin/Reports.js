@@ -16,14 +16,88 @@ import {
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { NSBM_DESIGN_SYSTEM } from '../../styles/nsbm-design-system';
+import PerformanceService from '../../services/PerformanceService';
+import MatchService from '../../services/MatchService';
+import InjuryService from '../../services/InjuryService';
 
 // NSBM Brand Colors from Design System
 const { colors } = NSBM_DESIGN_SYSTEM;
 const nsbmGreen = colors.brandPrimary;
 
+const sampleData = {
+  playerPerformance: [
+    { player_name: 'Monil Jason', player_role: 'Captain', total_runs: 1250, batting_average: 45.2, total_wickets: 5, bowling_average: 22.5, economy_rate: 6.8, matches_played: 15, strike_rate: 125.5 },
+    { player_name: 'Dulaj Bandara', player_role: 'Vice Captain', total_runs: 890, batting_average: 32.1, total_wickets: 28, bowling_average: 12.5, economy_rate: 6.2, matches_played: 12, strike_rate: 98.3 },
+    { player_name: 'Suviru Sathnidu', player_role: 'All Rounder', total_runs: 1100, batting_average: 38.9, total_wickets: 15, bowling_average: 18.2, economy_rate: 6.5, matches_played: 18, strike_rate: 112.4 },
+    { player_name: 'Lahiru Abhesinghe', player_role: 'Batsman', total_runs: 750, batting_average: 28.6, total_wickets: 8, bowling_average: 22.5, economy_rate: 6.8, matches_played: 14, strike_rate: 105.2 },
+    { player_name: 'Asitha Wanninayake', player_role: 'Batsman', total_runs: 650, batting_average: 25.0, total_wickets: 2, bowling_average: 35.0, economy_rate: 7.2, matches_played: 16, strike_rate: 95.8 },
+    { player_name: 'Maneendra Jayathilaka', player_role: 'Wicket Keeper', total_runs: 950, batting_average: 35.8, total_wickets: 12, bowling_average: 20.1, economy_rate: 5.9, matches_played: 13, strike_rate: 118.0 },
+    { player_name: 'Dilhara Polgampola', player_role: 'Bowler', total_runs: 800, batting_average: 30.2, total_wickets: 18, bowling_average: 15.8, economy_rate: 5.8, matches_played: 11, strike_rate: 110.5 },
+    { player_name: 'Dinesh Pethiyagoda', player_role: 'All Rounder', total_runs: 700, batting_average: 28.0, total_wickets: 6, bowling_average: 25.0, economy_rate: 6.5, matches_played: 10, strike_rate: 102.3 },
+    { player_name: 'Pathum Perera', player_role: 'Batsman', total_runs: 600, batting_average: 25.5, total_wickets: 4, bowling_average: 28.5, economy_rate: 6.9, matches_played: 9, strike_rate: 98.7 }
+  ],
+  topBowlers: [
+    { player_name: 'Dulaj Bandara', total_wickets: 28, matches_played: 12, bowling_average: 12.5, economy_rate: 6.2, image_url: '/images/gallery/players/dulaj.jpg' },
+    { player_name: 'Dilhara Polgampola', total_wickets: 18, matches_played: 11, bowling_average: 15.8, economy_rate: 5.8, image_url: '/images/gallery/players/lahiru.jpeg' },
+    { player_name: 'Suviru Sathnidu', total_wickets: 15, matches_played: 18, bowling_average: 18.2, economy_rate: 6.5, image_url: '/images/gallery/players/suviru.jpg' },
+    { player_name: 'Maneendra Jayathilaka', total_wickets: 12, matches_played: 13, bowling_average: 20.1, economy_rate: 5.9, image_url: '/images/gallery/players/maniya.jpg' },
+    { player_name: 'Lahiru Abhesinghe', total_wickets: 8, matches_played: 14, bowling_average: 22.5, economy_rate: 6.8, image_url: '/images/gallery/players/lahiru.jpeg' }
+  ],
+  topFielders: [
+    { player_name: 'Maneendra Jayathilaka', total_catches: 15, total_stumpings: 4, total_run_outs: 3, total_dismissals: 22, photo: '/images/gallery/players/maniya.jpg' },
+    { player_name: 'Monil Jason', total_catches: 12, total_stumpings: 2, total_run_outs: 4, total_dismissals: 18, photo: '/images/gallery/players/dulaj.jpg' },
+    { player_name: 'Suviru Sathnidu', total_catches: 10, total_stumpings: 1, total_run_outs: 5, total_dismissals: 16, photo: '/images/gallery/players/suviru.jpg' },
+    { player_name: 'Dilhara Polgampola', total_catches: 8, total_stumpings: 0, total_run_outs: 6, total_dismissals: 14, photo: '/images/gallery/players/lahiru.jpeg' },
+    { player_name: 'Dulaj Bandara', total_catches: 7, total_stumpings: 1, total_run_outs: 4, total_dismissals: 12, photo: '/images/gallery/players/asitha.jpeg' }
+  ],
+  teamSeason: {
+    totalMatches: 25,
+    wins: 18,
+    losses: 5,
+    draws: 2,
+    winPercentage: 72,
+    totalRuns: 12500,
+    totalWickets: 180,
+    bestBatsman: 'Monil Jason',
+    bestBowler: 'Dulaj Bandara',
+    bestFielder: 'Maneendra Jayathilaka'
+  },
+  fitnessInjury: [
+    { player: 'John Smith', status: 'Fit', lastCheck: '2024-01-10', injuries: 0 },
+    { player: 'Sarah Johnson', status: 'Injured', lastCheck: '2024-01-08', injuries: 1 },
+    { player: 'David Wilson', status: 'Fit', lastCheck: '2024-01-12', injuries: 0 },
+    { player: 'Mike Brown', status: 'Recovering', lastCheck: '2024-01-09', injuries: 1 },
+    { player: 'Lisa Davis', status: 'Fit', lastCheck: '2024-01-11', injuries: 0 }
+  ],
+};
+
+const reports = [
+  { id: 'player-performance', name: 'Player Performance', icon: Users },
+  { id: 'team-season', name: 'Team Season', icon: Trophy },
+  { id: 'fitness-injury', name: 'Fitness & Injury', icon: TrendingUp }
+];
+
+// const winLossData = [
+//   { name: 'Wins', value: reportData.teamSeason?.wins || 0, color: '#10B981' },
+//   { name: 'Losses', value: reportData.teamSeason?.losses || 0, color: '#EF4444' },
+//   { name: 'Draws', value: reportData.teamSeason?.draws || 0, color: '#6B7280' }
+// ];
+
 const Reports = () => {
   const [activeReport, setActiveReport] = useState('player-performance');
   const [reportData, setReportData] = useState({});
+  const [allPerformanceData, setAllPerformanceData] = useState([]);
+  const [winLossRatioData, setWinLossRatioData] = useState({});
+  const [matchesCount, setMatchesCount] = useState(0);
+  const [teamSeasonTotalRuns, setTeamSeasonTotalRuns] = useState(0);
+  const [teamSeasonTotalWickets, setTeamSeasonTotalWickets] = useState(0);
+  const [winLossReportMetrics, setWinLossReportMetrics] = useState({});
+  const [bestBatsman, setBestBatsman] = useState({});
+  const [bestBowler, setBestBowler] = useState({});
+  const [bestFielder, setBestFielder] = useState({});
+  const [injuries, setInjuries] = useState([]);
+  const [teamSeason, setTeamSeason] = useState({});
+
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
@@ -31,62 +105,165 @@ const Reports = () => {
     matchType: 'all'
   });
 
-  // Sample report data
   useEffect(() => {
-    const sampleData = {
-      playerPerformance: [
-        { name: 'Monil Jason', role: 'Captain', runs: 1250, battingAverage: 45.2, wickets: 5, bowlingAverage: 22.5, economy: 6.8, matches: 15, strikeRate: 125.5 },
-        { name: 'Dulaj Bandara', role: 'Vice Captain', runs: 890, battingAverage: 32.1, wickets: 28, bowlingAverage: 12.5, economy: 6.2, matches: 12, strikeRate: 98.3 },
-        { name: 'Suviru Sathnidu', role: 'All Rounder', runs: 1100, battingAverage: 38.9, wickets: 15, bowlingAverage: 18.2, economy: 6.5, matches: 18, strikeRate: 112.4 },
-        { name: 'Lahiru Abhesinghe', role: 'Batsman', runs: 750, battingAverage: 28.6, wickets: 8, bowlingAverage: 22.5, economy: 6.8, matches: 14, strikeRate: 105.2 },
-        { name: 'Asitha Wanninayake', role: 'Batsman', runs: 650, battingAverage: 25.0, wickets: 2, bowlingAverage: 35.0, economy: 7.2, matches: 16, strikeRate: 95.8 },
-        { name: 'Maneendra Jayathilaka', role: 'Wicket Keeper', runs: 950, battingAverage: 35.8, wickets: 12, bowlingAverage: 20.1, economy: 5.9, matches: 13, strikeRate: 118.0 },
-        { name: 'Dilhara Polgampola', role: 'Bowler', runs: 800, battingAverage: 30.2, wickets: 18, bowlingAverage: 15.8, economy: 5.8, matches: 11, strikeRate: 110.5 },
-        { name: 'Dinesh Pethiyagoda', role: 'All Rounder', runs: 700, battingAverage: 28.0, wickets: 6, bowlingAverage: 25.0, economy: 6.5, matches: 10, strikeRate: 102.3 },
-        { name: 'Pathum Perera', role: 'Batsman', runs: 600, battingAverage: 25.5, wickets: 4, bowlingAverage: 28.5, economy: 6.9, matches: 9, strikeRate: 98.7 }
-      ],
-      topBowlers: [
-        { name: 'Dulaj Bandara', wickets: 28, matches: 12, average: 12.5, economy: 6.2, photo: '/images/gallery/players/dulaj.jpg' },
-        { name: 'Dilhara Polgampola', wickets: 18, matches: 11, average: 15.8, economy: 5.8, photo: '/images/gallery/players/lahiru.jpeg' },
-        { name: 'Suviru Sathnidu', wickets: 15, matches: 18, average: 18.2, economy: 6.5, photo: '/images/gallery/players/suviru.jpg' },
-        { name: 'Maneendra Jayathilaka', wickets: 12, matches: 13, average: 20.1, economy: 5.9, photo: '/images/gallery/players/maniya.jpg' },
-        { name: 'Lahiru Abhesinghe', wickets: 8, matches: 14, average: 22.5, economy: 6.8, photo: '/images/gallery/players/lahiru.jpeg' }
-      ],
-      topFielders: [
-        { name: 'Maneendra Jayathilaka', catches: 15, stumpings: 4, runOuts: 3, total: 22, photo: '/images/gallery/players/maniya.jpg' },
-        { name: 'Monil Jason', catches: 12, stumpings: 2, runOuts: 4, total: 18, photo: '/images/gallery/players/dulaj.jpg' },
-        { name: 'Suviru Sathnidu', catches: 10, stumpings: 1, runOuts: 5, total: 16, photo: '/images/gallery/players/suviru.jpg' },
-        { name: 'Dilhara Polgampola', catches: 8, stumpings: 0, runOuts: 6, total: 14, photo: '/images/gallery/players/lahiru.jpeg' },
-        { name: 'Dulaj Bandara', catches: 7, stumpings: 1, runOuts: 4, total: 12, photo: '/images/gallery/players/asitha.jpeg' }
-      ],
-      teamSeason: {
-        totalMatches: 25,
-        wins: 18,
-        losses: 5,
-        draws: 2,
-        winPercentage: 72,
-        totalRuns: 12500,
-        totalWickets: 180,
-        bestBatsman: 'Monil Jason',
-        bestBowler: 'Dulaj Bandara',
-        bestFielder: 'Maneendra Jayathilaka'
-      },
-      fitnessInjury: [
-        { player: 'John Smith', status: 'Fit', lastCheck: '2024-01-10', injuries: 0 },
-        { player: 'Sarah Johnson', status: 'Injured', lastCheck: '2024-01-08', injuries: 1 },
-        { player: 'David Wilson', status: 'Fit', lastCheck: '2024-01-12', injuries: 0 },
-        { player: 'Mike Brown', status: 'Recovering', lastCheck: '2024-01-09', injuries: 1 },
-        { player: 'Lisa Davis', status: 'Fit', lastCheck: '2024-01-11', injuries: 0 }
-      ],
-    };
+
     setReportData(sampleData);
+
+    // ------ Tab - Player Performance -----------
+    getAllPlayersAllPerformanceDetails();
+
+    // ------ Tab - Team Season -----------
+    getWinLossRatio();
+    getAllMatches();
+
+    // ------ Tab - Fitness Injury -----------
+    getAllInjuries();
+
+    createTeamSeason();
+
   }, []);
 
-  const reports = [
-    { id: 'player-performance', name: 'Player Performance', icon: Users },
-    { id: 'team-season', name: 'Team Season', icon: Trophy },
-    { id: 'fitness-injury', name: 'Fitness & Injury', icon: TrendingUp }
-  ];
+  useEffect(()=>{
+    const winLossReportData = [
+      { name: 'Win', value: winLossRatioData?.win_count || 0, color: '#10B981' },
+      { name: 'Loss', value: winLossRatioData?.loss_count || 0, color: '#EF4444' },
+      { name: 'Draw', value: winLossRatioData?.draw_count || 0, color: '#6B7280' },
+      { name: 'Tie', value: winLossRatioData?.tie_count || 0, color: '#6B7280' }
+    ];
+
+    setWinLossReportMetrics(winLossReportData);
+  },[winLossRatioData])
+
+  const getAllPlayersAllPerformanceDetails = async() => {
+    try {
+      const res = await PerformanceService.getAllPerformanceData();
+      console.log(res);
+
+      if (res.status === 200) {
+        // Check if data exists
+        if (res.data.data && res.data.data.length > 0) {
+          console.log(res.data.data);
+          setAllPerformanceData(res.data.data);
+
+          // Sum all total_runs (skip nulls)
+          const sum_total_runs = res.data.data.reduce(
+            (acc, player) => acc + (player.total_runs || 0),
+            0
+          );
+          setTeamSeasonTotalRuns(sum_total_runs);
+
+          // Sum all total_runs (skip nulls)
+          const sum_total_wickets = res.data.data.reduce(
+            (acc, player) => acc + (player.total_wickets || 0),
+            0
+          );
+          setTeamSeasonTotalWickets(sum_total_wickets);
+
+          // Get best batsman
+          const best_batsman = res.data.data?.sort((a, b) => b.total_runs - a.total_runs).slice(0, 1)[0].player_name;
+          setBestBatsman(best_batsman);
+
+          // Get best bowler
+          const best_bowler = res.data.data?.sort((a, b) => b.total_wickets - a.total_wickets).slice(0, 1)[0].player_name;
+          setBestBowler(best_bowler);
+
+          // Get best fielder
+          const best_fielder = res.data.data?.sort((a, b) => b.total_dismissals - a.total_dismissals).slice(0, 1)[0].player_name;
+          setBestFielder(best_fielder);
+
+        } else {
+          alert(res.data.message)
+          setAllPerformanceData([]);
+          setTeamSeasonTotalRuns(0);
+          setTeamSeasonTotalWickets(0);
+        }
+      } else {
+        console.error("Failed to fetch performance details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching performance details: ", error);
+    }
+  }
+  
+  const getWinLossRatio = async() => {
+    try {
+      const res = await PerformanceService.getWinLossRatio();
+      console.log(res);
+
+        if (res.status === 200) {
+          console.log(res.data.data);
+          setWinLossRatioData(res.data.data);
+
+      } else {
+        console.error("Failed to fetch win/loss ratio");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching win/loss ratio details: ", error);
+    }
+  }
+  
+  const getAllMatches = async() => {
+    try {
+      const res = await MatchService.getAll();
+      console.log(res);
+
+        if (res.status === 200) {
+          if(res.data.data && res.data.data.length > 0) {
+            setMatchesCount(res.data.data.length);
+          } else {
+            alert(res.data.data.message);
+            setMatchesCount(0);
+          }
+      } else {
+        console.error("Failed to fetch win/loss ratio");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching win/loss ratio details: ", error);
+    }
+  }
+  
+  const getAllInjuries = async() => {
+    try {
+      const res = await InjuryService.getAll();
+      console.log(res);
+
+        if (res.status === 200) {
+          if(res.data.data && res.data.data.length > 0) {
+            setInjuries(res.data.data);
+          } else {
+            alert(res.data.data.message);
+            setInjuries([]);
+          }
+      } else {
+        console.error("Failed to fetch injury details");
+        alert(res.response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching injury details: ", error);
+    }
+  }
+
+  const createTeamSeason = () => {
+    const ts = {
+      totalMatches: matchesCount,
+      wins: winLossRatioData.win_count,
+      wins: winLossRatioData.win_count,
+      losses: winLossRatioData.loss_count,
+      draws: winLossRatioData.draw_count,
+      winPercentage: winLossRatioData.winLossRatio,
+      totalRuns: teamSeasonTotalRuns,
+      totalWickets: teamSeasonTotalWickets,
+      bestBatsman: bestBatsman,
+      bestBowler: bestBowler,
+      bestFielder: bestFielder,
+    }
+
+    console.log(ts);
+    setTeamSeason(ts);
+  }
 
   const exportToCSV = (data, filename) => {
     const csvContent = [
@@ -126,12 +303,6 @@ const Reports = () => {
     }
   };
 
-  const winLossData = [
-    { name: 'Wins', value: reportData.teamSeason?.wins || 0, color: '#10B981' },
-    { name: 'Losses', value: reportData.teamSeason?.losses || 0, color: '#EF4444' },
-    { name: 'Draws', value: reportData.teamSeason?.draws || 0, color: '#6B7280' }
-  ];
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -166,7 +337,7 @@ const Reports = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      {/* <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-white/80 mb-1">Date From</label>
@@ -214,7 +385,7 @@ const Reports = () => {
             </select>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Report Tabs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -251,7 +422,8 @@ const Reports = () => {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium" style={{ color: nsbmGreen }}>Player Performance Report</h3>
                 <button
-                  onClick={() => exportToCSV(reportData.playerPerformance, 'player_performance')}
+                  // onClick={() => exportToCSV(reportData.playerPerformance, 'player_performance')}
+                  onClick={() => exportToCSV(allPerformanceData, 'player_performance')}
                   className="inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50"
                 >
                   <Download className="w-4 h-4 mr-1" />
@@ -267,8 +439,9 @@ const Reports = () => {
                     Top Batsmen
                   </h4>
                   <div className="space-y-3">
-                    {reportData.playerPerformance?.slice(0, 5).map((player, index) => (
-                      <div key={player.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    {/* {reportData.playerPerformance?.slice(0, 5).map((player, index) => ( */}
+                    {allPerformanceData?.sort((a, b) => b.total_runs - a.total_runs).slice(0, 5).map((player, index) => (
+                      <div key={player.player_name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div 
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
@@ -279,13 +452,13 @@ const Reports = () => {
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{player.name}</p>
-                            <p className="text-sm text-gray-500">{player.role} • {player.matches} matches</p>
+                            <p className="font-medium text-gray-900">{player.player_name}</p>
+                            <p className="text-sm text-gray-500">{player.player_role} • {player.matches_played} matches</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">{player.runs} runs</p>
-                          <p className="text-base font-semibold text-gray-600">Avg: {player.battingAverage}</p>
+                          <p className="text-lg font-bold text-gray-900">{player.total_runs || 0} runs</p>
+                          <p className="text-base font-semibold text-gray-600">Avg: {Number(player.batting_average).toFixed(2)}</p>
                         </div>
                       </div>
                     ))}
@@ -299,8 +472,9 @@ const Reports = () => {
                     Top Bowlers
                   </h4>
                   <div className="space-y-3">
-                    {reportData.topBowlers?.map((bowler, index) => (
-                      <div key={bowler.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    {/* {reportData.topBowlers?.map((bowler, index) => ( */}
+                    {allPerformanceData?.sort((a, b) => b.total_wickets - a.total_wickets).map((bowler, index) => (
+                      <div key={bowler.player_name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div 
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
@@ -311,13 +485,13 @@ const Reports = () => {
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{bowler.name}</p>
-                            <p className="text-sm text-gray-500">{bowler.matches} matches</p>
+                            <p className="font-medium text-gray-900">{bowler.player_name}</p>
+                            <p className="text-sm text-gray-500">{bowler.matches_played} matches</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">{bowler.wickets} wickets</p>
-                          <p className="text-base font-semibold text-gray-600">Avg: {bowler.average}</p>
+                          <p className="text-lg font-bold text-gray-900">{bowler.total_wickets || 0} wickets</p>
+                          <p className="text-base font-semibold text-gray-600">Avg: {Number(bowler.bowling_average).toFixed(2)}</p>
                         </div>
                       </div>
                     ))}
@@ -331,8 +505,9 @@ const Reports = () => {
                     Top Fielders
                   </h4>
                   <div className="space-y-3">
-                    {reportData.topFielders?.map((fielder, index) => (
-                      <div key={fielder.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    {/* {reportData.topFielders?.slice(0, 5)?.map((fielder, index) => ( */}
+                    {allPerformanceData?.sort((a, b) => b.total_dismissals - a.total_dismissals).slice(0, 5)?.map((fielder, index) => (
+                      <div key={fielder.player_name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div 
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
@@ -343,13 +518,13 @@ const Reports = () => {
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{fielder.name}</p>
-                            <p className="text-sm text-gray-500">{fielder.catches + fielder.stumpings + fielder.runOuts} dismissals</p>
+                            <p className="font-medium text-gray-900">{fielder.player_name}</p>
+                            <p className="text-sm text-gray-500">{fielder.total_catches + fielder.total_stumpings + fielder.total_run_outs} dismissals</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">{fielder.total} total</p>
-                          <p className="text-base font-semibold text-gray-600">{fielder.catches}C, {fielder.stumpings}S, {fielder.runOuts}RO</p>
+                          <p className="text-lg font-bold text-gray-900">{fielder.total_dismissals} total</p>
+                          <p className="text-base font-semibold text-gray-600">{fielder.total_catches || 0}C, {fielder.total_stumpings || 0}S, {fielder.total_run_outs || 0}RO</p>
                         </div>
                       </div>
                     ))}
@@ -357,6 +532,7 @@ const Reports = () => {
                 </div>
               </div>
 
+              {/* All Players Performance */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">All Players Performance</h4>
                 <div className="overflow-x-auto">
@@ -372,41 +548,42 @@ const Reports = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {reportData.playerPerformance?.map((player, index) => (
-                        <tr key={player.name} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      {allPerformanceData?.map((player, index) => (
+                        <tr key={player.player_name} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10">
                                 <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                                   <span className="text-sm font-medium text-gray-700">
-                                    {player.name.split(' ').map(n => n[0]).join('')}
+                                    {player.player_name.split(' ').map(n => n[0]).join('')}
+                                    {/* {player.player_name} */}
                                   </span>
                                 </div>
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{player.name}</div>
-                                <div className="text-sm text-gray-500">{player.role} • {player.matches} matches</div>
+                                <div className="text-sm font-medium text-gray-900">{player.player_name}</div>
+                                <div className="text-sm text-gray-500">{player.player_role} • {player.matches_played} matches</div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-semibold text-gray-900">{player.runs}</div>
+                            <div className="text-sm font-semibold text-gray-900">{player.total_runs || 0}</div>
                             <div className="text-xs text-gray-500">runs</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-semibold text-gray-900">{player.battingAverage}</div>
+                            <div className="text-sm font-semibold text-gray-900">{Number(player.batting_average).toFixed(2)}</div>
                             <div className="text-xs text-gray-500">avg</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-semibold text-gray-900">{player.wickets}</div>
+                            <div className="text-sm font-semibold text-gray-900">{player.total_wickets || 0}</div>
                             <div className="text-xs text-gray-500">wickets</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-semibold text-gray-900">{player.bowlingAverage}</div>
+                            <div className="text-sm font-semibold text-gray-900">{Number(player.bowling_average).toFixed(2)}</div>
                             <div className="text-xs text-gray-500">avg</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-semibold text-gray-900">{player.economy}</div>
+                            <div className="text-sm font-semibold text-gray-900">{player.economy_rate}</div>
                             <div className="text-xs text-gray-500">rpo</div>
                           </td>
                         </tr>
@@ -424,7 +601,8 @@ const Reports = () => {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium" style={{ color: nsbmGreen }}>Team Season Report</h3>
                 <button
-                  onClick={() => exportToCSV([reportData.teamSeason], 'team_season')}
+                  // onClick={() => exportToCSV([reportData.teamSeason], 'team_season')}
+                  onClick={() => exportToCSV([teamSeason], 'team_season')}
                   className="inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50"
                 >
                   <Download className="w-4 h-4 mr-1" />
@@ -437,7 +615,8 @@ const Reports = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Total Matches</p>
-                      <p className="text-2xl font-bold text-white">{reportData.teamSeason?.totalMatches}</p>
+                      {/* <p className="text-2xl font-bold text-white">{reportData.teamSeason?.totalMatches}</p> */}
+                      <p className="text-2xl font-bold text-white">{matchesCount}</p>
                     </div>
                     <Trophy className="w-8 h-8 text-white/60" />
                   </div>
@@ -447,7 +626,8 @@ const Reports = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Win Percentage</p>
-                      <p className="text-2xl font-bold text-white">{reportData.teamSeason?.winPercentage}%</p>
+                      {/* <p className="text-2xl font-bold text-white">{reportData.teamSeason.wins}%</p> */}
+                      <p className="text-2xl font-bold text-white">{(winLossRatioData.winLossRatio).toFixed(2)}%</p>
                     </div>
                     <TrendingUp className="w-8 h-8 text-white/60" />
                   </div>
@@ -457,7 +637,8 @@ const Reports = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Total Runs</p>
-                      <p className="text-2xl font-bold text-white">{reportData.teamSeason?.totalRuns?.toLocaleString()}</p>
+                      {/* <p className="text-2xl font-bold text-white">{reportData.teamSeason?.totalRuns?.toLocaleString()}</p> */}
+                      <p className="text-2xl font-bold text-white">{teamSeasonTotalRuns}</p>
                     </div>
                     <BarChart3 className="w-8 h-8 text-white/60" />
                   </div>
@@ -467,7 +648,8 @@ const Reports = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white/70 text-sm">Total Wickets</p>
-                      <p className="text-2xl font-bold text-white">{reportData.teamSeason?.totalWickets}</p>
+                      {/* <p className="text-2xl font-bold text-white">{reportData.teamSeason?.totalWickets}</p> */}
+                      <p className="text-2xl font-bold text-white">{teamSeasonTotalWickets}</p>
                     </div>
                     <Users className="w-8 h-8 text-white/60" />
                   </div>
@@ -480,7 +662,7 @@ const Reports = () => {
                   <ResponsiveContainer width="100%" height={200}>
                     <PieChart>
                       <Pie
-                        data={winLossData}
+                        data={winLossReportMetrics}
                         cx="50%"
                         cy="50%"
                         innerRadius={40}
@@ -488,7 +670,7 @@ const Reports = () => {
                         paddingAngle={5}
                         dataKey="value"
                       >
-                        {winLossData.map((entry, index) => (
+                        {winLossReportMetrics.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
@@ -502,19 +684,23 @@ const Reports = () => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm text-gray-600">Best Batsman</span>
-                      <span className="font-medium text-gray-900">{reportData.teamSeason?.bestBatsman}</span>
+                      {/* <span className="font-medium text-gray-900">{reportData.teamSeason?.bestBatsman}</span> */}
+                      <span className="font-medium text-gray-900">{bestBatsman || 'Unknown'}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm text-gray-600">Best Bowler</span>
-                      <span className="font-medium text-gray-900">{reportData.teamSeason?.bestBowler}</span>
+                      {/* <span className="font-medium text-gray-900">{reportData.teamSeason?.bestBowler}</span> */}
+                      <span className="font-medium text-gray-900">{bestBowler || 'Unknown'}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm text-gray-600">Best Fielder</span>
-                      <span className="font-medium text-gray-900">{reportData.teamSeason?.bestFielder}</span>
+                      {/* <span className="font-medium text-gray-900">{reportData.teamSeason?.bestFielder}</span> */}
+                      <span className="font-medium text-gray-900">{bestFielder || 'Unknown'}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm text-gray-600">Total Wins</span>
-                      <span className="font-medium text-gray-900">{reportData.teamSeason?.wins}</span>
+                      {/* <span className="font-medium text-gray-900">{reportData.teamSeason?.wins}</span> */}
+                      <span className="font-medium text-gray-900">{winLossRatioData.win_count || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -528,7 +714,8 @@ const Reports = () => {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium" style={{ color: nsbmGreen }}>Fitness & Injury Report</h3>
                 <button
-                  onClick={() => exportToCSV(reportData.fitnessInjury, 'fitness_injury')}
+                  // onClick={() => exportToCSV(reportData.fitnessInjury, 'fitness_injury')}
+                  onClick={() => exportToCSV(injuries, 'fitness_injury')}
                   className="inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50"
                 >
                   <Download className="w-4 h-4 mr-1" />
@@ -540,9 +727,10 @@ const Reports = () => {
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Fit Players</p>
+                      <p className="text-sm text-gray-600">Recovered</p>
                       <p className="text-2xl font-bold text-green-600">
-                        {reportData.fitnessInjury?.filter(p => p.status === 'Fit').length}
+                        {/* {reportData.fitnessInjury?.filter(p => p.status === 'Fit').length} */}
+                        {injuries?.filter(p => p.status === 'RECOVERED').length}
                       </p>
                     </div>
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -554,9 +742,10 @@ const Reports = () => {
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Injured Players</p>
+                      <p className="text-sm text-gray-600">Injured</p>
                       <p className="text-2xl font-bold text-red-600">
-                        {reportData.fitnessInjury?.filter(p => p.status === 'Injured').length}
+                        {/* {reportData.fitnessInjury?.filter(p => p.status === 'Injured').length} */}
+                        {injuries?.filter(p => p.status === 'INJURED').length}
                       </p>
                     </div>
                     <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -570,7 +759,8 @@ const Reports = () => {
                     <div>
                       <p className="text-sm text-gray-600">Recovering</p>
                       <p className="text-2xl font-bold text-yellow-600">
-                        {reportData.fitnessInjury?.filter(p => p.status === 'Recovering').length}
+                        {/* {reportData.fitnessInjury?.filter(p => p.status === 'Recovering').length} */}
+                        {injuries?.filter(p => p.status === 'RECOVERING').length}
                       </p>
                     </div>
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -586,33 +776,38 @@ const Reports = () => {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Player</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Check</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Reported</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recovery Days</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Injuries</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th> */}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {reportData.fitnessInjury?.map((player) => (
-                      <tr key={player.player}>
+                    {injuries?.map((injury) => (
+                      <tr key={injury.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {player.player}
+                          {injury.player.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(player.status)}`}>
-                            {player.status}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(injury.status)}`}>
+                            {injury.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {new Date(player.lastCheck).toLocaleDateString()}
+                          {new Date(injury.date_reported).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {player.injuries}
+                          {injury.recovery_days}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {/* {injury.injuries} */}
+                          {injuries.filter(i => i.player.id === injury.player.id).length}
+                        </td>
+                        {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button className="text-blue-600 hover:text-blue-900">
                             <Eye className="w-4 h-4" />
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>
